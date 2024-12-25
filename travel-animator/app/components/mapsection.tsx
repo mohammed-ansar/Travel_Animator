@@ -208,6 +208,7 @@
 // }) => {
 //   const mapContainerRef = useRef(null);
 //   const mapRef = useRef<mapboxgl.Map | null>(null);
+//   const markersRef = useRef<mapboxgl.Marker[]>([]);  // Track markers here
 
 //   useEffect(() => {
 //     if (!mapContainerRef.current || mapRef.current) return;
@@ -224,6 +225,7 @@
 //   useEffect(() => {
 //     if (!mapRef.current) return;
 
+//     // Function to fetch coordinates based on place name
 //     const fetchCoordinates = async (place: string) => {
 //       const response = await fetch(
 //         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
@@ -234,27 +236,42 @@
 //       return data.features?.[0]?.center || null;
 //     };
 
+//     // Update the map with the new locations
 //     const updateMap = async () => {
 //       const fromCoords = await fetchCoordinates(fromLocation);
 //       const toCoords = await fetchCoordinates(toLocation);
 
+//       // Remove old markers if any
+//       markersRef.current.forEach(marker => marker.remove());
+//       markersRef.current = [];  // Clear the markers array
+
 //       if (fromCoords) {
-//         new mapboxgl.Marker().setLngLat(fromCoords).addTo(mapRef.current!);
+//         const fromMarker = new mapboxgl.Marker().setLngLat(fromCoords).addTo(mapRef.current!);
+//         markersRef.current.push(fromMarker);  // Store the marker for later removal
 //         mapRef.current!.flyTo({ center: fromCoords, zoom: 12 });
 //       }
 
 //       if (toCoords) {
-//         new mapboxgl.Marker().setLngLat(toCoords).addTo(mapRef.current!);
+//         const toMarker = new mapboxgl.Marker().setLngLat(toCoords).addTo(mapRef.current!);
+//         markersRef.current.push(toMarker);  // Store the marker for later removal
 //       }
 //     };
 
 //     updateMap();
-//   }, [fromLocation, toLocation]);
+//   }, [fromLocation, toLocation]); // Re-run the effect when the locations change
 
-//   return <div className="mr-3 ml-3 rounded-3xl" ref={mapContainerRef} style={{ flex:1, height: "83vh", width: "100%" }} />;
+//   return (
+//     <div
+//       className="mr-3 ml-3 rounded-3xl"
+//       ref={mapContainerRef}
+//       style={{ flex: 1, height: "83vh", width: "100%" }}
+//     />
+//   );
 // };
 
 // export default DynamicMapWithStyles;
+
+"use-client";
 
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
@@ -264,21 +281,19 @@ mapboxgl.accessToken = "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmO
 
 interface MapProps {
   fromLocation: string;
-  toLocation: string;
+    toLocation: string;
+    showRoute: boolean;
 }
 
-const DynamicMapWithStyles: React.FC<MapProps> = ({
-  fromLocation,
-  toLocation,
-}) => {
+const DynamicMapWithStyles: React.FC<MapProps> = ({ fromLocation, toLocation, showRoute}) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);  // Track markers here
+  const markersRef = useRef<mapboxgl.Marker[]>([]); // Track markers here
 
+  // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Initialize map
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v11",
@@ -287,21 +302,61 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     });
   }, []);
 
+  // Fetch coordinates from Mapbox geocoding API
+  const fetchCoordinates = async (place: string) => {
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(place)}.json?access_token=${mapboxgl.accessToken}`
+    );
+    const data = await response.json();
+    return data.features?.[0]?.center || null;
+  };
+
+  // Draw route between two locations
+const drawRoute = async (fromCoords: [number, number], toCoords: [number, number]) => {
+    // Check if the route source already exists and remove it if necessary
+    if (mapRef.current?.getSource("route")) {
+      mapRef.current?.removeLayer("route"); // Remove the layer
+      mapRef.current?.removeSource("route"); // Remove the source
+    }
+  
+    const response = await fetch(
+      `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoords.join(",")};${toCoords.join(",")}?geometries=geojson&access_token=${mapboxgl.accessToken}`
+    );
+    const data = await response.json();
+    if (data.routes && data.routes.length > 0) {
+      const route = data.routes[0].geometry;
+  
+      // Add route to map
+      mapRef.current?.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: route,
+          properties: {},
+        },
+      });
+  
+      mapRef.current?.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#1a1a1a",
+          "line-width": 4,
+        },
+      });
+    }
+  };
+  
+
+  // Update map and markers
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Function to fetch coordinates based on place name
-    const fetchCoordinates = async (place: string) => {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          place
-        )}.json?access_token=${mapboxgl.accessToken}`
-      );
-      const data = await response.json();
-      return data.features?.[0]?.center || null;
-    };
-
-    // Update the map with the new locations
     const updateMap = async () => {
       const fromCoords = await fetchCoordinates(fromLocation);
       const toCoords = await fetchCoordinates(toLocation);
@@ -312,18 +367,23 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
 
       if (fromCoords) {
         const fromMarker = new mapboxgl.Marker().setLngLat(fromCoords).addTo(mapRef.current!);
-        markersRef.current.push(fromMarker);  // Store the marker for later removal
+        markersRef.current.push(fromMarker); // Store the marker for later removal
         mapRef.current!.flyTo({ center: fromCoords, zoom: 12 });
       }
 
       if (toCoords) {
         const toMarker = new mapboxgl.Marker().setLngLat(toCoords).addTo(mapRef.current!);
-        markersRef.current.push(toMarker);  // Store the marker for later removal
+        markersRef.current.push(toMarker); // Store the marker for later removal
+      }
+
+      // Draw the route only if showRoute is true
+      if (showRoute && fromCoords && toCoords) {
+        drawRoute(fromCoords, toCoords); // Draw route between locations
       }
     };
 
     updateMap();
-  }, [fromLocation, toLocation]); // Re-run the effect when the locations change
+  }, [fromLocation, toLocation, showRoute]); // Re-run the effect when the locations change
 
   return (
     <div

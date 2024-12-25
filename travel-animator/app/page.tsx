@@ -14,13 +14,15 @@ export default function Page() {
     endingPoint: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [showRoute, setShowRoute] = useState(false); // Control when to show the route
 
   const handlePreviewClick = () => {
     if (!waypoints.startingPoint || !waypoints.endingPoint) {
       setErrorMessage("Oops! Preview mode needs at least 2 waypoints to work.");
+      setShowRoute(false); // Hide the route if locations are invalid
     } else {
       setErrorMessage(""); // Clear the error if inputs are valid
-      // Add logic to handle preview functionality here
+      setShowRoute(true); // Show the route when preview button is clicked
       console.log("Previewing route with waypoints:", waypoints);
     }
   };
@@ -29,7 +31,7 @@ export default function Page() {
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {/* Main Content Layout */}
-        <main className="flex h-screen bg-black text-white">
+        <main className="flex h-screen bg-black text-white overflow-hidden">
           <Sidebar
             waypoints={waypoints}
             setWaypoints={setWaypoints}
@@ -39,13 +41,14 @@ export default function Page() {
           <DynamicMapWithStyles
             fromLocation={waypoints.startingPoint}
             toLocation={waypoints.endingPoint}
+            showRoute={showRoute} // Pass showRoute prop to control route visibility
           />
           {/* </div> */}
         </main>
 
         {/* Error Message Popup */}
         {errorMessage && (
-          <div className="absolute bottom-1 right-4 bg-red-600 text-white px-3 py-2 rounded-lg shadow-lg">
+          <div className="absolute bottom-7 right-5 bg-red-600 text-white px-3 py-2 rounded-lg shadow-lg">
             <p>{errorMessage}</p>
           </div>
         )}
