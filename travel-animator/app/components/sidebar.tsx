@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   handlePreviewClick,
 }) => {
   return (
-    <aside className="w-1/4 bg-zinc-900 p-4 rounded-l-2xl flex flex-col">
+    <aside className="w-1/4 h-5/6 bg-zinc-900 ml-3 p-3 rounded-3xl flex flex-col">
       {/* Toggle Buttons */}
       <div className="flex mb-4 border border-gray-600 rounded-3xl p-1">
         <button className="flex-1 py-2 bg-blue-500 text-white font-bold rounded-l-3xl">
