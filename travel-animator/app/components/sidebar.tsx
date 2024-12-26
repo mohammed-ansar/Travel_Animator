@@ -1,4 +1,6 @@
 "use client";
+import Plane from "../icons/Plane";
+import Destination from "../icons/Destination";
 
 // import React from "react";
 
@@ -37,30 +39,46 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div>
         <p className="mb-4">0 Waypoints</p>
         {/* Starting Point */}
-        <div className="flex items-center mb-2 bg-zinc-800 p-2 rounded-3xl">
+        <div className="flex items-center">
           <div className="mr-2 text-blue-400">➖</div>
-          <input
-            type="text"
-            placeholder="Enter Starting Point"
-            value={waypoints.startingPoint}
-            onChange={(e) =>
-              setWaypoints({ ...waypoints, startingPoint: e.target.value })
-            }
-            className="flex-1 bg-zinc-800 text-white outline-none"
-          />
+
+          <div className="flex items-center mb-2 bg-zinc-800 p-2 rounded-3xl">
+            {/* Icon */}
+            <div className="mr-3">
+              <Plane />
+            </div>
+
+            {/* Input Field */}
+            <input
+              type="text"
+              placeholder= "Starting Point"
+              value={waypoints.startingPoint}
+              onChange={(e) =>
+                setWaypoints({ ...waypoints, startingPoint: e.target.value })
+              }
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-50" // Adjusted width and added padding
+            />
+          </div>
         </div>
+
         {/* Ending Point */}
-        <div className="flex items-center bg-zinc-800 p-2 rounded-3xl">
+        <div className="flex items-center">
           <div className="mr-2 text-orange-400">➖</div>
-          <input
-            type="text"
-            placeholder="Enter Ending Point"
-            value={waypoints.endingPoint}
-            onChange={(e) =>
-              setWaypoints({ ...waypoints, endingPoint: e.target.value })
-            }
-            className="flex-1 bg-zinc-800 text-white outline-none"
-          />
+
+          <div className="flex items-center bg-zinc-800 p-2 rounded-3xl">
+            <div className="mr-3">
+              <Destination />
+            </div>
+            <input
+              type="text"
+              placeholder="Ending Point"
+              value={waypoints.endingPoint}
+              onChange={(e) =>
+                setWaypoints({ ...waypoints, endingPoint: e.target.value })
+              }
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 w-50 overflow-hidden text-ellipsis"
+            />
+          </div>
         </div>
       </div>
     </aside>

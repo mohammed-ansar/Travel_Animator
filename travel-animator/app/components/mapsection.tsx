@@ -44,7 +44,6 @@
 //     }
 //     return null;
 //   };
-  
 
 //   const drawMarkersAndRoute = async () => {
 //     if (!mapRef.current) return;
@@ -107,21 +106,20 @@
 //           console.error("Map container is not available.");
 //           return;
 //         }
-      
+
 //         const map = new mapboxgl.Map({
 //           container: mapContainerRef.current as HTMLElement, // Use non-null assertion or type cast
 //           style: selectedStyle,
 //           center: [12.4924, 41.8902], // Default coordinates
 //           zoom: 5,
 //         });
-      
+
 //         mapRef.current = map;
-      
+
 //         map.on("load", () => {
 //           drawMarkersAndRoute(); // Draw markers and route on initial load
 //         });
 //       };
-      
 
 //     if (mapRef.current) {
 //       mapRef.current.setStyle(selectedStyle);
@@ -276,16 +274,23 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import ReactDOM from "react-dom/client";
+import Plane from "../icons/Plane";
+import Destination from "../icons/Destination";
 
-mapboxgl.accessToken = "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
 
 interface MapProps {
   fromLocation: string;
-    toLocation: string;
-    showRoute: boolean;
+  toLocation: string;
+  // showRoute: boolean;
 }
 
-const DynamicMapWithStyles: React.FC<MapProps> = ({ fromLocation, toLocation, showRoute}) => {
+const DynamicMapWithStyles: React.FC<MapProps> = ({
+  fromLocation,
+  toLocation,
+}) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]); // Track markers here
@@ -305,27 +310,36 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({ fromLocation, toLocation, sh
   // Fetch coordinates from Mapbox geocoding API
   const fetchCoordinates = async (place: string) => {
     const response = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(place)}.json?access_token=${mapboxgl.accessToken}`
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        place
+      )}.json?access_token=${mapboxgl.accessToken}`
     );
     const data = await response.json();
     return data.features?.[0]?.center || null;
   };
 
   // Draw route between two locations
-const drawRoute = async (fromCoords: [number, number], toCoords: [number, number]) => {
+  const drawRoute = async (
+    fromCoords: [number, number],
+    toCoords: [number, number]
+  ) => {
     // Check if the route source already exists and remove it if necessary
     if (mapRef.current?.getSource("route")) {
       mapRef.current?.removeLayer("route"); // Remove the layer
       mapRef.current?.removeSource("route"); // Remove the source
     }
-  
+
     const response = await fetch(
-      `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoords.join(",")};${toCoords.join(",")}?geometries=geojson&access_token=${mapboxgl.accessToken}`
+      `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoords.join(
+        ","
+      )};${toCoords.join(",")}?geometries=geojson&access_token=${
+        mapboxgl.accessToken
+      }`
     );
     const data = await response.json();
     if (data.routes && data.routes.length > 0) {
       const route = data.routes[0].geometry;
-  
+
       // Add route to map
       mapRef.current?.addSource("route", {
         type: "geojson",
@@ -335,7 +349,7 @@ const drawRoute = async (fromCoords: [number, number], toCoords: [number, number
           properties: {},
         },
       });
-  
+
       mapRef.current?.addLayer({
         id: "route",
         type: "line",
@@ -345,13 +359,12 @@ const drawRoute = async (fromCoords: [number, number], toCoords: [number, number
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#1a1a1a",
-          "line-width": 4,
+          "line-color": "#FF0A0A",
+          "line-width": 3,
         },
       });
     }
   };
-  
 
   // Update map and markers
   useEffect(() => {
@@ -362,28 +375,37 @@ const drawRoute = async (fromCoords: [number, number], toCoords: [number, number
       const toCoords = await fetchCoordinates(toLocation);
 
       // Remove old markers if any
-      markersRef.current.forEach(marker => marker.remove());
-      markersRef.current = [];  // Clear the markers array
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = []; // Clear the markers array
 
       if (fromCoords) {
-        const fromMarker = new mapboxgl.Marker().setLngLat(fromCoords).addTo(mapRef.current!);
+        const planeIconContainer = document.createElement("div");
+        ReactDOM.createRoot(planeIconContainer).render(<Plane />);
+
+        const fromMarker = new mapboxgl.Marker({ element: planeIconContainer })
+          .setLngLat(fromCoords)
+          .addTo(mapRef.current!);
         markersRef.current.push(fromMarker); // Store the marker for later removal
         mapRef.current!.flyTo({ center: fromCoords, zoom: 12 });
       }
 
       if (toCoords) {
-        const toMarker = new mapboxgl.Marker().setLngLat(toCoords).addTo(mapRef.current!);
+        const flagIconContainer = document.createElement("div");
+        ReactDOM.createRoot(flagIconContainer).render(<Destination />);
+
+        const toMarker = new mapboxgl.Marker({ element: flagIconContainer })
+          .setLngLat(toCoords)
+          .addTo(mapRef.current!);
         markersRef.current.push(toMarker); // Store the marker for later removal
       }
 
-      // Draw the route only if showRoute is true
-      if (showRoute && fromCoords && toCoords) {
+      if (fromCoords && toCoords) {
         drawRoute(fromCoords, toCoords); // Draw route between locations
       }
     };
 
     updateMap();
-  }, [fromLocation, toLocation, showRoute]); // Re-run the effect when the locations change
+  }, [fromLocation, toLocation]);
 
   return (
     <div

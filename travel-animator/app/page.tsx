@@ -41,7 +41,7 @@ export default function Page() {
           <DynamicMapWithStyles
             fromLocation={waypoints.startingPoint}
             toLocation={waypoints.endingPoint}
-            showRoute={showRoute} // Pass showRoute prop to control route visibility
+            // showRoute={showRoute} // Pass showRoute prop to control route visibility
           />
           {/* </div> */}
         </main>
@@ -56,5 +56,6 @@ export default function Page() {
     </html>
   );
 }
+
 
 
