@@ -351,6 +351,7 @@ const ModelSelector: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
   const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false);
+  
 
   // Map colors to model image paths for each model
   const modelImages: Record<string, Record<string, string>> = {

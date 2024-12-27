@@ -363,14 +363,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="fixed bottom-7 right-7 bg-black text-white px-6 py-3 my-3 rounded-3xl  shadow-lg flex items-center space-x-4 z-50">
           <p className="text-sm">Preview mode is now available!</p>
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-3xl text-sm font-medium"
-            onClick={() => {
-              setShowModelSelector(true);
-              setPopupVisible(false);
-            }}
-          >
-            Go to Preview
-          </button>
+  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-3xl text-sm font-medium"
+  onClick={() => {
+    setShowModelSelector(true);
+    setActiveTab("preview"); // Update the active tab to "preview"
+    setPopupVisible(false); // Close the popup
+  }}
+>
+  Go to Preview
+</button>
           <button
             className="text-white hover:text-gray-400 text-lg font-bold"
             onClick={() => setPopupVisible(false)}

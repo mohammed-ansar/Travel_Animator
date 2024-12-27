@@ -34,7 +34,7 @@ const ToggleButtons: React.FC<ToggleButtonsProps> = ({
           if (waypoints.startingPoint && waypoints.endingPoint) {
             setActiveTab("preview");
             setShowModelSelector(true);
-            setPopupVisible(true);
+            setPopupVisible(false);
             setErrorPopup(false); // Hide error popup when valid points
           } else {
             setErrorPopup(true); // Show error popup if invalid points

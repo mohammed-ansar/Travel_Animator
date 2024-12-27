@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import React, { useState } from "react";
 import Sidebar from "./components/sidebar";
 import DynamicMapWithStyles from "./components/mapsection";
+import PreviewSidebar from "./components/previewsidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function Page() {
             showPreview={showPreview}
             setShowPreview={setShowPreview}
           />
+          {/* <PreviewSidebar/> */}
           {/* <div className="flex-1 relative"> */}
           <DynamicMapWithStyles
             fromLocation={waypoints.startingPoint}
