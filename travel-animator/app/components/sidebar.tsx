@@ -87,23 +87,19 @@
 
 // export default Sidebar;
 
-"use client";
-
-import React, { Children, useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModelSelector from "./modelselector";
-import Link from "next/link";
-import router from "next/router";
+import Plane from "../icons/Plane";
+import Destination from "../icons/Destination";
 
 interface SidebarProps {
   waypoints: {
     startingPoint: string;
     endingPoint: string;
   };
-  
   setWaypoints: React.Dispatch<
     React.SetStateAction<{ startingPoint: string; endingPoint: string }>
   >;
-  handlePreviewClick: () => void;
   showPreview: boolean;
   setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -111,35 +107,54 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({
   waypoints,
   setWaypoints,
-  handlePreviewClick,
   showPreview,
   setShowPreview,
 }) => {
   const [popupVisible, setPopupVisible] = useState(false);
+  const [errorPopup, setErrorPopup] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
+  const [activeTab, setActiveTab] = useState("routes");
 
-  // Handle key press for Enter
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && waypoints.startingPoint && waypoints.endingPoint) {
-      handlePreviewClick(); // Trigger the preview popup
-      setPopupVisible(true); // Show the popup
+  // Hide error popup when waypoints are updated
+  useEffect(() => {
+    if (waypoints.startingPoint && waypoints.endingPoint) {
+      setErrorPopup(false); // Hide error popup when both waypoints are filled
+      setPopupVisible(true);
     }
-  };
+  }, [waypoints]); // Dependency on waypoints
 
   return (
     <aside className="w-1/4 h-5/6 bg-zinc-900 ml-3 p-3 rounded-3xl flex flex-col relative">
       {/* Toggle Buttons */}
       <div className="flex mb-4 border border-gray-600 rounded-3xl p-1">
-        <button className="flex-1 py-2 bg-blue-500 text-white font-bold rounded-l-3xl">
+        <button
+          onClick={() => setActiveTab("routes")}
+          className={`flex-1 py-2 font-bold ${
+            activeTab === "routes"
+              ? "bg-blue-500 text-white rounded-3xl"
+              : "bg-zinc-900 text-gray-300 rounded-l-3xl"
+          }`}
+        >
           Routes
         </button>
         <button
-          className="flex-1 py-2 bg-zinc-900 text-gray-300 font-bold rounded-r-2xl"
-          onClick={handlePreviewClick}
+          onClick={() => {
+            if (waypoints.startingPoint && waypoints.endingPoint) {
+              setActiveTab("preview");
+              setShowModelSelector(true);
+              setPopupVisible(true);
+              setErrorPopup(false); // Hide error popup when valid points
+            } else {
+              setErrorPopup(true); // Show error popup if invalid points
+            }
+          }}
+          className={`flex-1 py-2 font-bold ${
+            activeTab === "preview"
+              ? "bg-blue-500 text-white rounded-3xl"
+              : "bg-zinc-900 text-gray-300 rounded-r-3xl"
+          }`}
         >
-          {/* <Link><Link/> */}
-          Preview 
-          {/* {Children} */}
+          Preview
         </button>
       </div>
 
@@ -149,18 +164,21 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Starting Point */}
         <div className="flex items-center">
           <div className="mr-2 text-blue-400">➖</div>
-
           <div className="flex items-center mb-2 bg-zinc-800 p-2 rounded-3xl">
-            {/* Input Field */}
+            <div className="mr-3">
+              <Plane />
+            </div>
             <input
               type="text"
               placeholder="Starting Point"
               value={waypoints.startingPoint}
               onChange={(e) =>
-                setWaypoints({ ...waypoints, startingPoint: e.target.value })
+                setWaypoints({
+                  ...waypoints,
+                  startingPoint: e.target.value,
+                })
               }
-              onKeyDown={handleKeyPress} // Handle Enter key press
-              className="flex-1 bg-zinc-800 text-white outline-none pl-2 w-50 overflow-hidden text-ellipsis"
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-60 overflow-hidden text-ellipsis"
             />
           </div>
         </div>
@@ -168,17 +186,21 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Ending Point */}
         <div className="flex items-center">
           <div className="mr-2 text-orange-400">➖</div>
-
           <div className="flex items-center bg-zinc-800 p-2 rounded-3xl">
+            <div className="mr-3">
+              <Destination />
+            </div>
             <input
               type="text"
               placeholder="Ending Point"
               value={waypoints.endingPoint}
               onChange={(e) =>
-                setWaypoints({ ...waypoints, endingPoint: e.target.value })
+                setWaypoints({
+                  ...waypoints,
+                  endingPoint: e.target.value,
+                })
               }
-              onKeyDown={handleKeyPress} // Handle Enter key press
-              className="flex-1 bg-zinc-800 text-white outline-none pl-2 w-50 overflow-hidden text-ellipsis"
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-60 overflow-hidden text-ellipsis"
             />
           </div>
         </div>
@@ -186,28 +208,36 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Popup Box */}
       {popupVisible && (
-        <div className="fixed bottom-7 right-7 bg-black text-white px-6 py-4 rounded-full shadow-lg flex items-center space-x-4 z-50">
-          {/* Message */}
+        <div className="fixed bottom-7 right-7 bg-black text-white px-6 py-3 my-3 rounded-3xl  shadow-lg flex items-center space-x-4 z-50">
           <p className="text-sm">Preview mode is now available!</p>
-
-          {/* Go to Preview Button */}
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-3xl text-sm font-medium"
             onClick={() => {
-              setShowModelSelector(true); // Show ModelSelector
-              setPopupVisible(false); // Hide popup
+              setShowModelSelector(true);
+              setPopupVisible(false);
             }}
           >
             Go to Preview
           </button>
-
-          {/* Close Button */}
           <button
             className="text-white hover:text-gray-400 text-lg font-bold"
-            onClick={() => setPopupVisible(false)} // Hide popup on click
+            onClick={() => setPopupVisible(false)}
           >
             &times;
           </button>
+        </div>
+      )}
+
+      {/* Error popup */}
+      {errorPopup && (
+        <div
+          className="fixed bottom-7 right-7 text-white px-6 py-4 my-3 rounded-2xl shadow-lg flex items-center space-x-4 z-50"
+          style={{ backgroundColor: "#FF2E2E" }}
+        >
+          <div className="text-white text-lg">
+            <i className="fas fa-exclamation-circle"></i> {/* Example with FontAwesome */}
+          </div>
+          <p className="text-sm font-light">Oops! Preview mode needs at least 2 Waypoints to work.</p>
         </div>
       )}
 
@@ -218,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <ModelSelector />
             {/* <button
               className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium"
-              onClick={() => setShowModelSelector(false)} // Close ModelSelector
+              onClick={() => setShowModelSelector(false)}
             >
               Close
             </button> */}
@@ -229,7 +259,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
+
 
 // import React from "react";
 // import ModelSelector from "./modelselector";
