@@ -131,54 +131,66 @@ import React, { useState } from "react";
 
 const ModelSelector: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF"); // Default white
+  const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false); // Toggle for palette visibility
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-end">
       {/* Sidebar */}
       <div className="w-1/3 bg-zinc-900 h-full flex flex-col">
         {/* Header */}
-<div className="flex justify-between items-center p-4">
-  {/* Title */}
-  <h2 className="text-white text-xl">Models</h2>
-  
-  {/* Right Section: Add Image Button and Close Button */}
-  <div className="flex items-center space-x-4">
-    {/* Add Image Button */}
-    <label className="relative flex items-center">
-      <input
-        type="file"
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        onChange={(e) => {
-          if (e.target.files && e.target.files[0]) {
-            console.log("File selected:", e.target.files[0]);
-            // Add your file upload logic here
-          }
-        }}
-      />
-      <button
-        type="button"
-        className="bg-zinc-800 text-white px-4 py-2 rounded-3xl flex items-center hover:bg-blue-600 transition-all"
-      >
-        <img
-          src="/addimageicon.png"
-          alt="Upload Icon"
-          className="w-4 h-4 mr-2"
-        />
-        Add Image
-      </button>
-    </label>
+        <div className="flex justify-between items-center p-4">
+          {/* Title */}
+          <h2 className="text-white text-xl">Models</h2>
 
-    {/* Close Button */}
-    <button
-      className="text-white hover:text-gray-400 text-2xl"
-      onClick={() => console.log("Close sidebar")}
-    >
-      &times;
-    </button>
-  </div>
-</div>
+          {/* Right Section: Add Image Button and Round Color Button */}
+          <div className="flex items-center space-x-4">
+            {/* Add Image Button */}
+            <label className="relative flex items-center">
+              <input
+                type="file"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    console.log("File selected:", e.target.files[0]);
+                    // Add your file upload logic here
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="bg-zinc-800 text-white px-4 py-2 rounded-3xl flex items-center hover:bg-blue-600 transition-all"
+              >
+                <img
+                  src="/addimageicon.png"
+                  alt="Upload Icon"
+                  className="w-4 h-4 mr-2"
+                />
+                Add Image
+              </button>
+            </label>
 
+            {/* Round Color Button */}
+            <button
+              onClick={() => setIsPaletteOpen(!isPaletteOpen)} // Toggle palette
+              className="w-10 h-10 rounded-full border-2 border-gray-700 hover:border-blue-500 flex items-center justify-center transition-all relative"
+            >
+              {/* SVG Shape Inside Button */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 36 36"
+                width="20"
+                height="20"
+                className="absolute"
+              >
+                <path
+                  d="M18 2C10.268 2 4 8.268 4 16C4 20.515 6.053 24.515 9.389 27L7 34H29L26.611 27C29.947 24.515 32 20.515 32 16C32 8.268 25.732 2 18 2Z"
+                  fill={selectedColor}
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         {/* Highlighted Model with Color Palette */}
         <div className="relative flex justify-center items-center px-4 mb-4 mt-3">
@@ -192,28 +204,28 @@ const ModelSelector: React.FC = () => {
           </div>
 
           {/* Color Palette */}
-          <div className="absolute right-4 flex flex-col space-y-1">
-            {[
-              "#FF4D4D",
-              "#FFA500",
-              "#FFEB3B",
-              "#4CAF50",
-              "#2196F3",
-              "#9C27B0",
-              "#FFFFFF",
-            ].map((color, index) => (
-              <div
-                key={index}
-                className={`h-8 w-8 rounded-full border-2 cursor-pointer ${
-                  selectedColor === color
-                    ? "border-blue-500"
-                    : "border-gray-700"
-                }`}
-                style={{ backgroundColor: color }}
-                onClick={() => setSelectedColor(color)}
-              />
-            ))}
-          </div>
+          {isPaletteOpen && ( // Only show if palette is open
+            <div className="absolute right-6 bottom-[-65px] flex flex-col space-y-2">
+              {[
+                "#FF4D4D",
+                "#FFA500",
+                "#FFEB3B",
+                "#4CAF50",
+                "#2196F3",
+                "#9C27B0",
+                "#FFFFFF",
+              ].map((color, index) => (
+                <div
+                  key={index}
+                  className={`h-6 w-6 rounded-full border cursor-pointer ${
+                    selectedColor === color ? "border-blue-500" : "border-gray-700"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)} // Update selected color
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Scrollable Content */}
@@ -224,11 +236,11 @@ const ModelSelector: React.FC = () => {
           {/* Free Models */}
           <div className="mb-4">
             <h3 className="text-white font-bold text-sm mb-3">Free Models</h3>
-            <div className="flex justify-around">
-              {["car1", "car2", "plane", "truck"].map((model, index) => (
+            <div className="flex flex-wrap gap-2">
+              {["car1", "car2", "bus", "truck"].map((model, index) => (
                 <div
                   key={index}
-                  className={`p-2 rounded-lg border-2 cursor-pointer ${
+                  className={`p-1 rounded-lg border-2 cursor-pointer ${
                     selectedModel === model
                       ? "border-blue-500"
                       : "border-gray-700"
@@ -238,7 +250,7 @@ const ModelSelector: React.FC = () => {
                   <img
                     src={`/models/${model}.png`}
                     alt={model}
-                    className="w-16 h-16 object-contain"
+                    className="w-14 h-14 object-contain"
                   />
                 </div>
               ))}
@@ -289,3 +301,6 @@ const ModelSelector: React.FC = () => {
 };
 
 export default ModelSelector;
+
+
+
