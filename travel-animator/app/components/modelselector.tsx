@@ -137,11 +137,11 @@ const ModelSelector: React.FC = () => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-end">
       {/* Sidebar */}
-      <div className="w-1/3 bg-zinc-900 h-full flex flex-col">
+      <div className="w-[350px] bg-zinc-900 h-full flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-4">
           {/* Title */}
-          <h2 className="text-white text-xl">Models</h2>
+          <h2 className="text-white text-l">Models</h2>
 
           {/* Right Section: Add Image Button and Round Color Button */}
           <div className="flex items-center space-x-4">
@@ -173,7 +173,7 @@ const ModelSelector: React.FC = () => {
             {/* Round Color Button */}
             <button
               onClick={() => setIsPaletteOpen(!isPaletteOpen)} // Toggle palette
-              className="w-10 h-10 rounded-full border-2 border-gray-700 hover:border-blue-500 flex items-center justify-center transition-all relative"
+              className="w-10 h-10 rounded-full border-2 border-gray-700 hover:border-white flex items-center justify-center transition-all relative"
             >
               {/* SVG Shape Inside Button */}
               <svg
@@ -205,7 +205,12 @@ const ModelSelector: React.FC = () => {
 
           {/* Color Palette */}
           {isPaletteOpen && ( // Only show if palette is open
-            <div className="absolute right-6 bottom-[-65px] flex flex-col space-y-2">
+            <div
+              className="absolute right-5 bottom-[-30px] p-2 bg-zinc-800 rounded-2xl shadow-lg flex flex-col space-y-1"
+              style={{
+                width: "35px", // Adjust size as required
+              }}
+            >
               {[
                 "#FF4D4D",
                 "#FFA500",
@@ -217,8 +222,8 @@ const ModelSelector: React.FC = () => {
               ].map((color, index) => (
                 <div
                   key={index}
-                  className={`h-6 w-6 rounded-full border cursor-pointer ${
-                    selectedColor === color ? "border-blue-500" : "border-gray-700"
+                  className={`h-5 w-5 rounded-full border cursor-pointer ${
+                    selectedColor === color ? "border-black" : "border-gray-600"
                   }`}
                   style={{ backgroundColor: color }}
                   onClick={() => setSelectedColor(color)} // Update selected color
@@ -235,22 +240,22 @@ const ModelSelector: React.FC = () => {
         >
           {/* Free Models */}
           <div className="mb-4">
-            <h3 className="text-white font-bold text-sm mb-3">Free Models</h3>
+            <h3 className="text-gray-400 text-sm mb-3">Free Models</h3>
             <div className="flex flex-wrap gap-2">
               {["car1", "car2", "bus", "truck"].map((model, index) => (
                 <div
                   key={index}
-                  className={`p-1 rounded-lg border-2 cursor-pointer ${
+                  className={`p-1 rounded-xl border-2 cursor-pointer ${
                     selectedModel === model
                       ? "border-blue-500"
-                      : "border-gray-700"
+                      : "border-gray-800"
                   }`}
                   onClick={() => setSelectedModel(model)}
                 >
                   <img
                     src={`/models/${model}.png`}
                     alt={model}
-                    className="w-14 h-14 object-contain"
+                    className="w-12 h-12 object-contain"
                   />
                 </div>
               ))}
@@ -258,35 +263,42 @@ const ModelSelector: React.FC = () => {
           </div>
 
           {/* Premium Section */}
-<div
-  className="mb-6 bg-blue-500 p-4 rounded-2xl text-white text-center relative overflow-hidden flex items-center justify-between"
-  style={{
-    backgroundImage: "url('/probgimage.png')",
-    backgroundPosition: "center",
-    backgroundSize: "cover", // Ensures the image covers the entire box
-    backgroundRepeat: "no-repeat",
-  }}
->
-  <div className="text-left pt-5 pb-5">
-    <h4 className=" text-lg mb-1 relative z-10">Upgrade for Super Powers</h4>
-    <p className="text-sm relative z-10">Premium animated 3D models</p>
-  </div>
-  <button className="bg-white text-black px-3 py-1 rounded-3xl font-bold relative z-10 text-sm">
-  <span className="font-normal">GET</span> <span className="font-bold">PRO</span>
-</button>
+          <div className="mb-6 bg-gradient-to-r from-[#00A2FF] to-[#0739B0] p-4 rounded-2xl text-white text-center relative overflow-hidden flex items-center justify-between">
+            {/* Gradient Background Overlay */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: "url('/probgimage.png')",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                // opacity: 0.3,
+              }}
+            ></div>
 
-</div>
-
-
+            {/* Content */}
+            <div className="relative z-10 text-left pt-5 pb-5">
+              <h6 className="text-sm font-semibold mb-1">
+                Upgrade for Super Powers
+              </h6>
+              <p className="text-xs text-gray-300">
+                Premium animated 3D models
+              </p>
+            </div>
+            <button className="bg-white text-black px-2 py-1 rounded-2xl font-bold relative z-10 text-xs">
+              <span className="font-normal">GET</span>{" "}
+              <span className="font-bold">PRO</span>
+            </button>
+          </div>
 
           {/* Pro Models */}
           <div className="mb-6">
-            <h3 className="text-white font-bold text-sm mb-3">PRO Models</h3>
+            <h3 className="text-gray-400 text-sm mb-3">PRO Models</h3>
             <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
-                  className="p-2 rounded-lg border-2 cursor-pointer border-gray-700 opacity-50"
+                  className="p-1 rounded-xl border-2 cursor-pointer border-gray-800 opacity-50"
                 >
                   <img
                     src={`/models/pro-model-${index + 1}.png`}
@@ -314,6 +326,3 @@ const ModelSelector: React.FC = () => {
 };
 
 export default ModelSelector;
-
-
-
