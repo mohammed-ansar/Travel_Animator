@@ -214,15 +214,15 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Conditionally Render ModelSelector */}
       {showModelSelector && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          {/* <div className="bg-white p-6 rounded-lg shadow-lg"> */}
             <ModelSelector />
-            <button
+            {/* <button
               className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium"
               onClick={() => setShowModelSelector(false)} // Close ModelSelector
             >
               Close
-            </button>
-          </div>
+            </button> */}
+          {/* </div> */}
         </div>
       )}
     </aside>

@@ -258,13 +258,26 @@ const ModelSelector: React.FC = () => {
           </div>
 
           {/* Premium Section */}
-          <div className="mb-6 bg-blue-500 p-4 rounded-lg text-white text-center">
-            <h4 className="font-bold text-lg mb-2">Upgrade for Super Powers</h4>
-            <p className="text-sm mb-2">Premium animated 3D models</p>
-            <button className="bg-white text-blue-500 px-4 py-2 rounded-md font-bold">
-              GET PRO
-            </button>
-          </div>
+<div
+  className="mb-6 bg-blue-500 p-4 rounded-2xl text-white text-center relative overflow-hidden flex items-center justify-between"
+  style={{
+    backgroundImage: "url('/probgimage.png')",
+    backgroundPosition: "center",
+    backgroundSize: "cover", // Ensures the image covers the entire box
+    backgroundRepeat: "no-repeat",
+  }}
+>
+  <div className="text-left pt-5 pb-5">
+    <h4 className=" text-lg mb-1 relative z-10">Upgrade for Super Powers</h4>
+    <p className="text-sm relative z-10">Premium animated 3D models</p>
+  </div>
+  <button className="bg-white text-black px-3 py-1 rounded-3xl font-bold relative z-10 text-sm">
+  <span className="font-normal">GET</span> <span className="font-bold">PRO</span>
+</button>
+
+</div>
+
+
 
           {/* Pro Models */}
           <div className="mb-6">
