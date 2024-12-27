@@ -130,22 +130,69 @@
 import React, { useState } from "react";
 
 const ModelSelector: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF"); // Default white
-  const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false); // Toggle for palette visibility
+  const [selectedModel, setSelectedModel] = useState<string>("car1");
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false);
+
+  // Map colors to model image paths for each model
+  const modelImages: Record<string, Record<string, string>> = {
+    car1: {
+      "#FF4D4D": "/models/car-red.png",
+      "#FFA500": "/models/car1.png",
+      "#FFEB3B": "/models/car-yellow.png",
+      "#4CAF50": "/models/car1.png",
+      "#2196F3": "/models/car-blue.png",
+      "#9C27B0": "/models/car1.png",
+      "#FFFFFF": "/models/car1.png",
+    },
+    car2: {
+      "#FF4D4D": "/models/car2.png",
+      "#FFA500": "/models/car2.png",
+      "#FFEB3B": "/models/car2.png",
+      "#4CAF50": "/models/car2.png",
+      "#2196F3": "/models/car2.png",
+      "#9C27B0": "/models/car2.png",
+      "#FFFFFF": "/models/car2.png",
+    },
+    bus: {
+      "#FF4D4D": "/models/car3.png",
+      "#FFA500": "/models/car3.png",
+      "#FFEB3B": "/models/car3.png",
+      "#4CAF50": "/models/car3.png",
+      "#2196F3": "/models/car3.png",
+      "#9C27B0": "/models/car3.png",
+      "#FFFFFF": "/models/car3.png",
+    },
+    truck: {
+      "#FF4D4D": "/models/truck.png",
+      "#FFA500": "/models/truck.png",
+      "#FFEB3B": "/models/truck.png",
+      "#4CAF50": "/models/truck.png",
+      "#2196F3": "/models/truck.png",
+      "#9C27B0": "/models/truck.png",
+      "#FFFFFF": "/models/truck.png",
+    },
+    // Add mappings for other models if needed
+  };
+
+  const handleOutsideClick = () => setIsPaletteOpen(false);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-end">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-end"
+      onClick={handleOutsideClick}
+    >
       {/* Sidebar */}
-      <div className="w-[350px] bg-zinc-900 h-full flex flex-col">
+      <div
+        className="w-[350px] bg-zinc-900 h-full flex flex-col"
+        onClick={(e) => e.stopPropagation()} // Prevent click from closing palette
+      >
         {/* Header */}
         <div className="flex justify-between items-center p-4">
-          {/* Title */}
           <h2 className="text-white text-l">Models</h2>
 
-          {/* Right Section: Add Image Button and Round Color Button */}
+          {/* Add Image Button and Color Button */}
           <div className="flex items-center space-x-4">
-            {/* Add Image Button */}
             <label className="relative flex items-center">
               <input
                 type="file"
@@ -153,7 +200,7 @@ const ModelSelector: React.FC = () => {
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     console.log("File selected:", e.target.files[0]);
-                    // Add your file upload logic here
+                    // Add file upload logic here
                   }
                 }}
               />
@@ -170,12 +217,11 @@ const ModelSelector: React.FC = () => {
               </button>
             </label>
 
-            {/* Round Color Button */}
             <button
-              onClick={() => setIsPaletteOpen(!isPaletteOpen)} // Toggle palette
+              aria-label="Toggle Color Palette"
+              onClick={() => setIsPaletteOpen(!isPaletteOpen)}
               className="w-10 h-10 rounded-full border-2 border-gray-700 hover:border-white flex items-center justify-center transition-all relative"
             >
-              {/* SVG Shape Inside Button */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 36 36"
@@ -192,41 +238,30 @@ const ModelSelector: React.FC = () => {
           </div>
         </div>
 
-        {/* Highlighted Model with Color Palette */}
+        {/* Model Display */}
         <div className="relative flex justify-center items-center px-4 mb-4 mt-3">
-          {/* Highlighted Model */}
           <div className="bg-gray-800 p-4 rounded-lg flex items-center justify-center">
             <img
-              src="/models/car1.png"
-              alt="Highlighted Model"
+              src={modelImages[selectedModel]?.[selectedColor] || "/models/default.png"}
+              alt={`Model: ${selectedModel}`}
               className="w-24 h-24 object-contain"
             />
           </div>
 
           {/* Color Palette */}
-          {isPaletteOpen && ( // Only show if palette is open
+          {isPaletteOpen && (
             <div
               className="absolute right-5 bottom-[-30px] p-2 bg-zinc-800 rounded-2xl shadow-lg flex flex-col space-y-1"
-              style={{
-                width: "35px", // Adjust size as required
-              }}
+              style={{ width: "35px" }}
             >
-              {[
-                "#FF4D4D",
-                "#FFA500",
-                "#FFEB3B",
-                "#4CAF50",
-                "#2196F3",
-                "#9C27B0",
-                "#FFFFFF",
-              ].map((color, index) => (
+              {Object.keys(modelImages[selectedModel] || {}).map((color) => (
                 <div
-                  key={index}
+                  key={color}
                   className={`h-5 w-5 rounded-full border cursor-pointer ${
                     selectedColor === color ? "border-black" : "border-gray-600"
                   }`}
                   style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)} // Update selected color
+                  onClick={() => setSelectedColor(color)}
                 />
               ))}
             </div>
@@ -234,17 +269,14 @@ const ModelSelector: React.FC = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div
-          className="flex-1 overflow-y-auto px-4 scrollbar-hide"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
+        <div className="flex-1 overflow-y-auto px-4 scrollbar-hide">
           {/* Free Models */}
           <div className="mb-4">
             <h3 className="text-gray-400 text-sm mb-3">Free Models</h3>
             <div className="flex flex-wrap gap-2">
-              {["car1", "car2", "bus", "truck"].map((model, index) => (
+              {["car1", "car2", "bus", "truck"].map((model) => (
                 <div
-                  key={index}
+                  key={model}
                   className={`p-1 rounded-xl border-2 cursor-pointer ${
                     selectedModel === model
                       ? "border-blue-500"
@@ -262,21 +294,9 @@ const ModelSelector: React.FC = () => {
             </div>
           </div>
 
-          {/* Premium Section */}
-          <div className="mb-6 bg-gradient-to-r from-[#00A2FF] to-[#0739B0] p-4 rounded-2xl text-white text-center relative overflow-hidden flex items-center justify-between">
-            {/* Gradient Background Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: "url('/probgimage.png')",
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                // opacity: 0.3,
-              }}
-            ></div>
-
-            {/* Content */}
+          {/* Premium Models */}
+          <div className="mb-6 bg-gradient-to-r from-[#00A2FF] to-[#0739B0] p-4 rounded-2xl text-white text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-cover bg-center opacity-20" />
             <div className="relative z-10 text-left pt-5 pb-5">
               <h6 className="text-sm font-semibold mb-1">
                 Upgrade for Super Powers
@@ -285,13 +305,11 @@ const ModelSelector: React.FC = () => {
                 Premium animated 3D models
               </p>
             </div>
-            <button className="bg-white text-black px-2 py-1 rounded-2xl font-bold relative z-10 text-xs">
-              <span className="font-normal">GET</span>{" "}
-              <span className="font-bold">PRO</span>
+            <button className="bg-white text-black px-2 py-1 rounded-2xl font-bold text-xs">
+              GET PRO
             </button>
           </div>
 
-          {/* Pro Models */}
           <div className="mb-6">
             <h3 className="text-gray-400 text-sm mb-3">PRO Models</h3>
             <div className="grid grid-cols-4 gap-2">
