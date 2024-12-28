@@ -100,6 +100,10 @@ interface SidebarProps {
   setWaypoints: React.Dispatch<
     React.SetStateAction<{ startingPoint: string; endingPoint: string }>
   >;
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
   showPreview: boolean;
   setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -109,11 +113,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   setWaypoints,
   showPreview,
   setShowPreview,
+  selectedModel,
+  selectedColor,
+  setSelectedModel,
+  setSelectedColor,
 }) => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [activeTab, setActiveTab] = useState("routes");
+
 
   // Hide error popup when waypoints are updated
   useEffect(() => {
@@ -124,7 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [waypoints]); // Dependency on waypoints
 
   return (
-    <aside className="w-1/4 h-5/6 bg-zinc-900 ml-3 p-3 rounded-3xl flex flex-col relative">
+    <aside className="w-1/4 h-5/6 bg-zinc-900 ml-3 p-3 pr-8 rounded-3xl flex flex-col relative">
       {/* Toggle Buttons */}
       <div className="flex mb-4 border border-gray-600 rounded-3xl p-1">
         <button
@@ -178,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   startingPoint: e.target.value,
                 })
               }
-              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-60 overflow-hidden text-ellipsis"
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-full overflow-hidden text-ellipsis"
             />
           </div>
         </div>
@@ -200,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   endingPoint: e.target.value,
                 })
               }
-              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-60 overflow-hidden text-ellipsis"
+              className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-full overflow-hidden text-ellipsis"
             />
           </div>
         </div>
@@ -245,7 +254,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       {showModelSelector && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           {/* <div className="bg-white p-6 rounded-lg shadow-lg"> */}
-            <ModelSelector />
+          <ModelSelector
+          selectedModel={selectedModel}
+          selectedColor={selectedColor}
+          setSelectedModel={setSelectedModel}
+          setSelectedColor={setSelectedColor}
+          onClose = {()=>setShowModelSelector(false)}
+        />
             {/* <button
               className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium"
               onClick={() => setShowModelSelector(false)}

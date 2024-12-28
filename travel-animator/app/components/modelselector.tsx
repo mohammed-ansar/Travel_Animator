@@ -129,9 +129,23 @@
 
 import React, { useState } from "react";
 
-const ModelSelector: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState<string>("car1");
-  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+interface ModelSelectorProps {
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+  onClose:() => void;
+}
+
+const ModelSelector: React.FC<ModelSelectorProps> = ({
+  selectedModel,
+  setSelectedModel,
+  selectedColor,
+  setSelectedColor,
+  onClose,
+  
+}) => {
+
   const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false);
 
   // Map colors to model image paths for each model
@@ -331,7 +345,9 @@ const ModelSelector: React.FC = () => {
 
         {/* Footer Actions */}
         <div className="flex justify-center p-4 space-x-6">
-          <button className="bg-zinc-800 hover:bg-gray-800 text-white w-40 px-8 py-2 rounded-full text-lg font-medium">
+          <button className="bg-zinc-800 hover:bg-gray-800 text-white w-40 px-8 py-2 rounded-full text-lg font-medium"
+          onClick={onClose}
+          >
             Discard
           </button>
           <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-2 rounded-full text-lg font-medium">
@@ -344,3 +360,7 @@ const ModelSelector: React.FC = () => {
 };
 
 export default ModelSelector;
+
+
+
+
