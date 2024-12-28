@@ -285,11 +285,15 @@ interface MapProps {
   fromLocation: string;
   toLocation: string;
   // showRoute: boolean;
+  selectedColor : string;
+  selectedModel : string;
 }
 
 const DynamicMapWithStyles: React.FC<MapProps> = ({
   fromLocation,
   toLocation,
+  selectedColor,
+  selectedModel
 }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
