@@ -190,6 +190,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   };
 
   const handleOutsideClick = () => setIsPaletteOpen(false);
+  // const handleSave = () => {
+  //   console.log("Selected Model:", selectedModel);
+    
+  //   setSelectedModel(selectedModel);
+  
+  //   onClose();
+  // };
+  
 
   return (
     <div
@@ -350,7 +358,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           >
             Discard
           </button>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-2 rounded-full text-lg font-medium">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-2 rounded-full text-lg font-medium"
+          // onClick={handleSave}
+          >
             Save
           </button>
         </div>
