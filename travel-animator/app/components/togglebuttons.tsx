@@ -18,7 +18,7 @@ const ToggleButtons: React.FC<ToggleButtonsProps> = ({
   setErrorPopup,
 }) => {
   return (
-    <div className="flex mb-4 border border-gray-600 rounded-3xl p-1">
+    <div className="flex mb-4 border border-gray-800 rounded-3xl p-1">
       <button
         onClick={() => setActiveTab("routes")}
         className={`flex-1 py-2 font-bold ${
