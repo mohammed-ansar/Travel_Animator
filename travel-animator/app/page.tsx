@@ -20,12 +20,28 @@ export default function Page() {
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FF0A0A");
 
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         {/* Main Content Layout */}
         <main className="flex h-screen bg-black text-white overflow-hidden">
-          <Sidebar
+          {/* Sidebar or Preview Sidebar */}
+          {showPreview ? (
+            <PreviewSidebar />
+          ) : (
+            <Sidebar
+              waypoints={waypoints}
+              setWaypoints={setWaypoints}
+              showPreview={showPreview}
+              setShowPreview={setShowPreview}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              selectedColor={selectedColor}
+              setSelectedColor={setSelectedColor}
+            />
+          )}
+          {/* <Sidebar
             waypoints={waypoints}
             setWaypoints={setWaypoints}
             showPreview={showPreview}
@@ -34,7 +50,7 @@ export default function Page() {
           setSelectedModel={setSelectedModel}
           selectedColor={selectedColor}
           setSelectedColor={setSelectedColor}
-          />
+          /> */}
           {/* <PreviewSidebar /> */}
           {/* <div className="flex-1 relative"> */}
           {/* <MapWithAspectRatios/> */}

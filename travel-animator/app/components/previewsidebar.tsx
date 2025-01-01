@@ -1,10 +1,6 @@
 
-
 import React, { useState } from "react";
 import { FaFlag, FaMapMarkerAlt } from "react-icons/fa";
-import { IoMdArrowRoundForward } from "react-icons/io";
-import { LuMapPinned } from "react-icons/lu";
-import { SlArrowRight } from "react-icons/sl";
 import { PiMapPinAreaFill } from "react-icons/pi";
 
 import ToggleButtons from "./togglebuttons";
@@ -23,14 +19,6 @@ const PreviewSidebar = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
   const [currentView, setCurrentView] = useState("Preview"); // State to track the current view
-
-  const handleSave = () => {
-    setIsEditing(true);
-  };
-
-  const handleDiscard = () => {
-    setIsEditing(true);
-  };
 
   const handleMapStyleClick = () => {
     setCurrentView("MapStyle"); // Switch to the MapStyle view
@@ -52,138 +40,120 @@ const PreviewSidebar = () => {
       }}
     >
       {currentView === "Preview" ? (
-        isEditing ? (
-          <div className="mb-auto">
-            <ToggleButtons
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              waypoints={waypoints}
-              setShowModelSelector={setShowModelSelector}
-              setPopupVisible={setPopupVisible}
-              setErrorPopup={setErrorPopup}
-            />
+        <div className="mb-auto">
+          <ToggleButtons
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            waypoints={waypoints}
+            setShowModelSelector={setShowModelSelector}
+            setPopupVisible={setPopupVisible}
+            setErrorPopup={setErrorPopup}
+          />
 
-            {/* Sliders */}
-            <div className="py-4">
-              <div className="mb-6">
-                <label className="block text-sm mb-1">Model size</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  defaultValue="0.8"
-                  className="w-full"
-                />
-                <div className="text-right text-xs mt-1">0.80</div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm mb-1">Duration</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="60"
-                  step="1"
-                  defaultValue="20"
-                  className="w-full"
-                />
-                <div className="text-right text-xs mt-1">20 Sec</div>
-              </div>
+          {/* Sliders */}
+          <div className="py-4">
+            <div className="mb-6">
+              <label className="block text-sm mb-1">Model size</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                defaultValue="0.8"
+                className="w-full"
+              />
+              <div className="text-right text-xs mt-1">0.80</div>
             </div>
 
-            {/* Flag Toggle */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center">
-                <FaFlag className="ml-1 mr-2 text-sm" />
-                <span className="text-white text-sm">Flag</span>
-              </div>
+            <div className="mb-6">
+              <label className="block text-sm mb-1">Duration</label>
+              <input
+                type="range"
+                min="0"
+                max="60"
+                step="1"
+                defaultValue="20"
+                className="w-full"
+              />
+              <div className="text-right text-xs mt-1">20 Sec</div>
+            </div>
+          </div>
+
+          {/* Flag Toggle */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center">
+              <FaFlag className="ml-1 mr-2 text-sm" />
+              <span className="text-white text-sm">Flag</span>
+            </div>
+            <div
+              className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer ${
+                isFlagEnabled ? "bg-blue-600" : "bg-gray-700"
+              }`}
+              onClick={() => setIsFlagEnabled(!isFlagEnabled)}
+            >
               <div
-                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer ${
-                  isFlagEnabled ? "bg-blue-600" : "bg-gray-700"
+                className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${
+                  isFlagEnabled ? "translate-x-5" : "translate-x-0"
                 }`}
-                onClick={() => setIsFlagEnabled(!isFlagEnabled)}
-              >
-                <div
-                  className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${
-                    isFlagEnabled ? "translate-x-5" : "translate-x-0"
+              ></div>
+            </div>
+          </div>
+
+          {/* Unit Selector */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center">
+              <FaMapMarkerAlt className="text-sm mr-2" />
+              <span className="text-white text-sm">Unit</span>
+            </div>
+            <div className="flex space-x-1 ml-3 border border-gray-800 p-1 rounded-md">
+              {["Km", "Mi", "Off"].map((unit) => (
+                <button
+                  key={unit}
+                  className={`px-2 py-1 text-xs rounded-md ${
+                    activeUnit === unit
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-white"
                   }`}
-                ></div>
-              </div>
-            </div>
-
-            {/* Unit Selector */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center">
-                <FaMapMarkerAlt className="text-sm mr-2" />
-                <span className="text-white text-sm">Unit</span>
-              </div>
-              <div className="flex space-x-1 ml-3 border border-gray-800 p-1 rounded-md">
-                {["Km", "Mi", "Off"].map((unit) => (
-                  <button
-                    key={unit}
-                    className={`px-2 py-1 text-xs rounded-md ${
-                      activeUnit === unit
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-700 text-white"
-                    }`}
-                    onClick={() => setActiveUnit(unit)}
-                  >
-                    {unit}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Map Style */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center">
-                <PiMapPinAreaFill className="mr-2 text-xl text-white" />
-                <span className="text-white text-sm">Map style</span>
-              </div>
-              <button className="ml-5" onClick={handleMapStyleClick}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="white"
-                  strokeWidth="3"
-                  className="w-4 h-4"
+                  onClick={() => setActiveUnit(unit)}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+                  {unit}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Add Destinations */}
-            <button
-              className="w-full py-2 text-blue-500 rounded-lg mt-4"
-              style={{ backgroundColor: "#0A84FF14" }}
-            >
-              + Add destinations
+          {/* Map Style */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center">
+              <PiMapPinAreaFill className="mr-2 text-xl text-white" />
+              <span className="text-white text-sm">Map style</span>
+            </div>
+            <button className="ml-5" onClick={handleMapStyleClick}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="white"
+                strokeWidth="3"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </button>
           </div>
-        ) : (
-          <div>
-            <h1 className="text-lg font-bold mb-4">Sidebar</h1>
-            <button
-              onClick={handleSave}
-              className="w-full bg-blue-500 py-2 rounded mb-4 hover:bg-blue-600"
-            >
-              Save
-            </button>
-            <button
-              onClick={handleDiscard}
-              className="w-full bg-gray-500 py-2 rounded hover:bg-gray-600"
-            >
-              Discard
-            </button>
-          </div>
-        )
+
+          {/* Add Destinations */}
+          <button
+            className="w-full py-2 text-blue-500 rounded-lg mt-4"
+            style={{ backgroundColor: "#0A84FF14" }}
+          >
+            + Add destinations
+          </button>
+        </div>
       ) : (
         <MapStyle onBack={handleBackClick} /> // Render MapStyle component
       )}
@@ -192,3 +162,6 @@ const PreviewSidebar = () => {
 };
 
 export default PreviewSidebar;
+
+
+

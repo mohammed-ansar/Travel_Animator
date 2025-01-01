@@ -6,7 +6,9 @@ interface ModelSelectorProps {
   setSelectedModel: (model: string) => void;
   selectedColor: string;
   setSelectedColor: (color: string) => void;
-  onClose:() => void;
+  onClose: () => void;
+  showPreview: boolean;  // Add this line
+  setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;  // Add this line
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({
@@ -15,10 +17,22 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedColor,
   setSelectedColor,
   onClose,
+  showPreview,
+  setShowPreview,  // Receive the state and updater function
   
 }) => {
 
   const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false);
+
+  const handleSave = () => {
+    setShowPreview(true);  // Set showPreview to true when save is clicked
+    onClose();  // Optionally close the model selector
+  };
+
+  const handleDiscard = () => {
+    setShowPreview(true);  // Set showPreview to true when save is clicked
+    onClose();  // Optionally close the model selector
+  };
   
 
   // Map colors to model image paths for each model
@@ -224,10 +238,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
         <div className="flex justify-center p-4 space-x-6"
           style={{ backgroundColor: "#181818" }}>
           <button className="bg-zinc-800 hover:bg-gray-800 text-white w-40 px-8 py-3 rounded-full text-sm font-normal"
-          onClick={onClose}>
+          onClick={handleDiscard}>
             Discard
           </button>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-3 rounded-full text-sm font-normal">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-3 rounded-full text-sm font-normal"
+          onClick={handleSave}>
             Save
           </button>
         </div>

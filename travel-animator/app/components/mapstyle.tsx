@@ -51,10 +51,11 @@ const MapStyle = ({ onBack }: { onBack: () => void }) => {
 
       {/* Scrollable Content */}
       <div
-        className="overflow-y-scroll h-[calc(100vh-150px)]"
+        className="overflow-y-scroll h-[calc(85vh-150px)]"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
+          overflowX: "hidden",
         }}
       >
         <div className="space-y-4">
