@@ -20,7 +20,6 @@ export default function Page() {
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FF0A0A");
 
-  
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -28,39 +27,38 @@ export default function Page() {
         <main className="flex h-screen bg-black text-white overflow-hidden">
           {/* Sidebar or Preview Sidebar */}
           {showPreview ? (
-            <PreviewSidebar />
+            <>
+              <PreviewSidebar />
+              <MapWithAspectRatios
+                fromLocation={waypoints.startingPoint}
+                toLocation={waypoints.endingPoint}
+                selectedModel={selectedModel}
+                selectedColor={selectedColor}
+              />
+            </>
           ) : (
-            <Sidebar
-              waypoints={waypoints}
-              setWaypoints={setWaypoints}
-              showPreview={showPreview}
-              setShowPreview={setShowPreview}
-              selectedModel={selectedModel}
-              setSelectedModel={setSelectedModel}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-            />
+            <>
+              <Sidebar
+                waypoints={waypoints}
+                setWaypoints={setWaypoints}
+                showPreview={showPreview}
+                setShowPreview={setShowPreview}
+                selectedModel={selectedModel}
+                setSelectedModel={setSelectedModel}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
+              <DynamicMapWithStyles
+                fromLocation={waypoints.startingPoint}
+                toLocation={waypoints.endingPoint}
+                // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
+                selectedModel={selectedModel}
+                selectedColor={selectedColor}
+              />
+            </>
           )}
-          {/* <Sidebar
-            waypoints={waypoints}
-            setWaypoints={setWaypoints}
-            showPreview={showPreview}
-            setShowPreview={setShowPreview}
-            selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
-          /> */}
-          {/* <PreviewSidebar /> */}
           {/* <div className="flex-1 relative"> */}
           {/* <MapWithAspectRatios/> */}
-          <DynamicMapWithStyles
-            fromLocation={waypoints.startingPoint}
-            toLocation={waypoints.endingPoint}
-            // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
-            selectedModel={selectedModel}
-            selectedColor={selectedColor}
-          />
 
           {/* </div> */}
         </main>

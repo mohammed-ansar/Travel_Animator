@@ -1,102 +1,256 @@
-"use client";
+"use-client";
 
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import ReactDOM from "react-dom/client";
+import Plane from "../icons/Plane";
+import Destination from "../icons/Destination";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
 
-const MapWithAspectRatios = () => {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [dimension, setDimension] = useState("2D");
+interface MapProps {
+  fromLocation: string;
+  toLocation: string;
+  selectedColor: string;
+  selectedModel: string;
+  aspectRatio?: "1:1" | "9:16" | "16:9"; // Optional aspect ratio
+}
 
-  // Map initialization
+const MapWithAspectRatios: React.FC<MapProps> = ({
+  fromLocation,
+  toLocation,
+  selectedColor,
+  selectedModel,
+  aspectRatio = "1:1", // Default to 16:9
+}) => {
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<{
+    fromMarker: mapboxgl.Marker | null;
+    toMarker: mapboxgl.Marker | null;
+    waypoints: mapboxgl.Marker[];
+  }>({
+    fromMarker: null,
+    toMarker: null,
+    waypoints: [],
+  });
+
+  const [dimension, setDimension] = useState("2D");
+  const [mapAspectRatio, setMapAspectRatio] = useState(aspectRatio);
+
+  const fetchCoordinates = async (place: string) => {
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        place
+      )}.json?access_token=${mapboxgl.accessToken}`
+    );
+    const data = await response.json();
+    return data.features?.[0]?.center || null;
+  };
+
+  const drawRoute = () => {
+    if (!mapRef.current) return;
+
+    const fromCoords = markersRef.current.fromMarker?.getLngLat();
+    const toCoords = markersRef.current.toMarker?.getLngLat();
+
+    if (!fromCoords || !toCoords) return;
+
+    const coordinates = [
+      [fromCoords.lng, fromCoords.lat],
+      ...markersRef.current.waypoints.map((marker) => [
+        marker.getLngLat().lng,
+        marker.getLngLat().lat,
+      ]),
+      [toCoords.lng, toCoords.lat],
+    ];
+
+    const lineGeoJSON = {
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates,
+      },
+    };
+
+    if (mapRef.current.getSource("route")) {
+      mapRef.current.removeLayer("route");
+      mapRef.current.removeSource("route");
+    }
+
+    mapRef.current.addSource("route", {
+      type: "geojson",
+      data: lineGeoJSON,
+    });
+
+    mapRef.current.addLayer({
+      id: "route",
+      type: "line",
+      source: "route",
+      layout: {
+        "line-join": "round",
+        "line-cap": "round",
+      },
+      paint: {
+        "line-color": selectedColor || "#121216",
+        "line-width": 3,
+      },
+    });
+  };
+
+  const addWaypoint = (lngLat: mapboxgl.LngLat) => {
+    const waypointMarker = new mapboxgl.Marker({ draggable: true })
+      .setLngLat(lngLat)
+      .addTo(mapRef.current!);
+
+    waypointMarker.on("dragend", drawRoute);
+
+    markersRef.current.waypoints.push(waypointMarker);
+
+    drawRoute();
+  };
+
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v11",
-      center: [133.7751, -25.2744], // Default coordinates (Australia)
-      zoom: 4,
+      center: [12.4924, 41.8902],
+      zoom: 5,
     });
   }, []);
 
-  // Update map dimension
   useEffect(() => {
     if (!mapRef.current) return;
 
-    if (dimension === "2D") {
-      mapRef.current.setStyle("mapbox://styles/mapbox/streets-v11");
-      mapRef.current.setPitch(0); // Flat view
-    } else if (dimension === "3D") {
-      mapRef.current.setStyle("mapbox://styles/mapbox/satellite-v9");
-      mapRef.current.setPitch(45); // Perspective
-      mapRef.current.setZoom(5);
-    }
-  }, [dimension]);
+    const updateMap = async () => {
+      const fromCoords = await fetchCoordinates(fromLocation);
+      const toCoords = await fetchCoordinates(toLocation);
 
-  // Handle aspect ratio changes
-  const calculateHeight = (width: number): string => {
-    switch (aspectRatio) {
+      if (markersRef.current.fromMarker) {
+        markersRef.current.fromMarker.remove();
+      }
+
+      if (fromCoords) {
+        const planeIconContainer = document.createElement("div");
+        ReactDOM.createRoot(planeIconContainer).render(<Plane />);
+
+        const fromMarker = new mapboxgl.Marker({
+          element: planeIconContainer,
+          draggable: true,
+        })
+          .setLngLat(fromCoords)
+          .addTo(mapRef.current);
+
+        fromMarker.on("dragend", drawRoute);
+        markersRef.current.fromMarker = fromMarker;
+        mapRef.current.flyTo({ center: fromCoords, zoom: 12 });
+      }
+
+      if (markersRef.current.toMarker) {
+        markersRef.current.toMarker.remove();
+      }
+
+      if (toCoords) {
+        const flagIconContainer = document.createElement("div");
+        ReactDOM.createRoot(flagIconContainer).render(<Destination />);
+
+        const toMarker = new mapboxgl.Marker({
+          element: flagIconContainer,
+          draggable: true,
+        })
+          .setLngLat(toCoords)
+          .addTo(mapRef.current);
+
+        toMarker.on("dragend", drawRoute);
+        markersRef.current.toMarker = toMarker;
+      }
+
+      if (fromCoords && toCoords) {
+        drawRoute();
+      }
+    };
+
+    updateMap();
+  }, [fromLocation, toLocation]);
+
+  const getSizeForAspectRatio = (ratio: string) => {
+    switch (ratio) {
       case "1:1":
-        return `${width}px`; // Square
-      case "9:16":
-        return `${(width / 9) * 16}px`; // Portrait
+        return { width: "400px", height: "400px" };
       case "16:9":
-        return `${(width / 16) * 9}px`; // Landscape
+        return { width: "600px", height: "300px" };
+      case "9:16":
+        return { width: "300px", height: "470px" };
       default:
-        return "500px";
+        return { width: "302px", height: "170px" }; // Default to 16:9
     }
   };
 
+  const mapSize = getSizeForAspectRatio(mapAspectRatio);
+
   const mapStyles = {
     width: "100%",
-    height: calculateHeight(700), // Adjust based on container width
+    height: "100%",
+  };
+
+  const handleAspectRatioChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMapAspectRatio(e.target.value);
+  };
+
+  const handleDimensionChange = (newDimension: "2D" | "3D") => {
+    setDimension(newDimension);
+    if (mapRef.current) {
+      if (newDimension === "2D") {
+        mapRef.current.setStyle("mapbox://styles/mapbox/streets-v11");
+        mapRef.current.setPitch(0);
+      } else {
+        mapRef.current.setStyle("mapbox://styles/mapbox/satellite-v9");
+        mapRef.current.setPitch(45);
+        mapRef.current.setZoom(5);
+      }
+    }
   };
 
   return (
     <div
-      className="relative w-full mr-3 ml-3 h-[83vh] rounded-2xl border border-gray-800 bg-gray-900 p-4 flex items-center justify-center"
-      style={{ backgroundColor: "#121216" }}
+      className="relative w-full mr-3 ml-3 rounded-3xl border border-gray-800"
+      style={{
+        flex: 1,
+        height: "83vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      {/* Dropdowns Container */}
+      {/* Control Buttons */}
       <div className="absolute top-5 right-5 flex flex-row gap-5 z-10">
-        {/* Dropdown for Aspect Ratios */}
+        {/* Aspect Ratio Dropdown */}
         <div
           className="relative w-24 text-white rounded-full p-2 shadow-md border border-gray-700 flex items-center cursor-pointer"
           style={{ backgroundColor: "#212121" }}
         >
-          {/* Left Icon */}
-          <div className="flex items-center justify-center w-4 h-6 border-2 border-white rounded-sm mr-2 pointer-events-none">
-            {/* Placeholder for the icon (can replace with an SVG or actual icon) */}
-          </div>
-          {/* Dropdown Select */}
           <select
-            value={aspectRatio}
-            onChange={(e) => setAspectRatio(e.target.value)}
+            value={mapAspectRatio}
+            onChange={handleAspectRatioChange}
             className="bg-transparent text-white flex-1 outline-none appearance-none cursor-pointer"
           >
             <option value="1:1">1:1</option>
             <option value="9:16">9:16</option>
             <option value="16:9">16:9</option>
           </select>
-          {/* Dropdown Arrow */}
-          <span className="text-gray-500 ml-2 pointer-events-none">
-            &#x25BC;
-          </span>
         </div>
 
-        {/* Toggle button */}
+        {/* 2D/3D Toggle Button */}
         <div
           className="flex items-center w-24 h-10 rounded-full p-1 shadow-md border border-gray-700"
           style={{ backgroundColor: "#212121" }}
         >
           <button
-            onClick={() => setDimension("2D")}
+            onClick={() => handleDimensionChange("2D")}
             className={`flex-1 h-full rounded-full ${
               dimension === "2D"
                 ? "bg-white text-black font-medium"
@@ -106,7 +260,7 @@ const MapWithAspectRatios = () => {
             2D
           </button>
           <button
-            onClick={() => setDimension("3D")}
+            onClick={() => handleDimensionChange("3D")}
             className={`flex-1 h-full rounded-full ${
               dimension === "3D"
                 ? "bg-white text-black font-medium"
@@ -120,14 +274,24 @@ const MapWithAspectRatios = () => {
 
       {/* Map Container */}
       <div
-        ref={mapContainerRef}
-        className="map-container rounded-xl shadow-lg"
         style={{
-          ...mapStyles,
-          maxWidth: "90%", // Ensure it doesn’t stretch too wide
-          maxHeight: "90%", // Ensure it doesn’t stretch too tall
+          position: "relative",
+          width: mapSize.width,
+          height: mapSize.height,
         }}
-      />
+      >
+        <div
+          ref={mapContainerRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            borderRadius: "15px",
+          }}
+        />
+      </div>
     </div>
   );
 };
