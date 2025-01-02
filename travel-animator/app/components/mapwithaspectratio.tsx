@@ -15,15 +15,18 @@ interface MapProps {
   toLocation: string;
   selectedColor: string;
   selectedModel: string;
-  aspectRatio?: "1:1" | "9:16" | "16:9"; // Optional aspect ratio
+  aspectRatio?: "1:1" | "9:16" | "16:9"; 
+  selectedMapStyle: string;  
+  // setSelectedMapStyle: React.Dispatch<React.SetStateAction<string>>; 
 }
 
-const MapWithAspectRatios: React.FC<MapProps> = ({
+const MapWithAspectRatios: React.FC<MapProps & { selectedMapStyle: string }> = ({
   fromLocation,
   toLocation,
   selectedColor,
   selectedModel,
   aspectRatio = "1:1", // Default to 16:9
+  selectedMapStyle,
 }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -67,12 +70,20 @@ const MapWithAspectRatios: React.FC<MapProps> = ({
       [toCoords.lng, toCoords.lat],
     ];
 
+    // const lineGeoJSON = {
+    //   type: "Feature",
+    //   geometry: {
+    //     type: "LineString",
+    //     coordinates,
+    //   },
+    // };
     const lineGeoJSON = {
       type: "Feature",
       geometry: {
         type: "LineString",
         coordinates,
       },
+      properties: {}, // Add this line
     };
 
     if (mapRef.current.getSource("route")) {
@@ -177,6 +188,13 @@ const MapWithAspectRatios: React.FC<MapProps> = ({
     updateMap();
   }, [fromLocation, toLocation]);
 
+  // Update the map style dynamically when `selectedMapStyle` changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setStyle(selectedMapStyle);
+    }
+  }, [selectedMapStyle]);
+
   const getSizeForAspectRatio = (ratio: string) => {
     switch (ratio) {
       case "1:1":
@@ -230,17 +248,87 @@ const MapWithAspectRatios: React.FC<MapProps> = ({
       <div className="absolute top-5 right-5 flex flex-row gap-5 z-10">
         {/* Aspect Ratio Dropdown */}
         <div
-          className="relative w-24 text-white rounded-full p-2 shadow-md border border-gray-700 flex items-center cursor-pointer"
+          className="relative w-31 text-white rounded-full p-2 shadow-md border border-gray-700 flex items-center cursor-pointer"
           style={{ backgroundColor: "#212121" }}
+          onClick={(e) => {
+    const selectElement = e.currentTarget.querySelector("select");
+    selectElement?.focus(); // Focus on the select dropdown to open it
+    selectElement?.click(); // Simulate a click to open it
+  }}
         >
+          {/* Dynamic Left Icon (Border Line for Ratios) */}
+          <div className="flex items-center justify-center w-6 h-6 mr-3 pointer-events-none">
+            {mapAspectRatio === "1:1" && (
+              <div
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  border: "1px solid white",
+                  borderRadius: "3px",
+                }}
+              />
+            )}
+            {mapAspectRatio === "9:16" && (
+              <div
+                style={{
+                  width: "15px",
+                  height: "30px",
+                  border: "1px solid white",
+                  borderRadius: "3px",
+                }}
+              />
+            )}
+            {mapAspectRatio === "16:9" && (
+              <div
+                style={{
+                  width: "30px",
+                  height: "17px",
+                  border: "1px solid white",
+                  borderRadius: "3px",
+                }}
+              />
+            )}
+          </div>
+
+          {/* Dropdown */}
           <select
             value={mapAspectRatio}
             onChange={handleAspectRatioChange}
             className="bg-transparent text-white flex-1 outline-none appearance-none cursor-pointer"
           >
-            <option value="1:1">1:1</option>
-            <option value="9:16">9:16</option>
-            <option value="16:9">16:9</option>
+            <option
+              value="1:1"
+              className="hover:bg-gray-600"
+              style={{
+                backgroundColor: "#212121",
+                color: "white",
+                padding: "8px",
+              }}
+            >
+              1:1
+            </option>
+            <option
+              value="9:16"
+              className="hover:bg-gray-600"
+              style={{
+                backgroundColor: "#212121",
+                color: "white",
+                padding: "8px",
+              }}
+            >
+              9:16
+            </option>
+            <option
+              value="16:9"
+              className="hover:bg-gray-600"
+              style={{
+                backgroundColor: "#212121",
+                color: "white",
+                padding: "8px",
+              }}
+            >
+              16:9
+            </option>
           </select>
         </div>
 
@@ -297,3 +385,4 @@ const MapWithAspectRatios: React.FC<MapProps> = ({
 };
 
 export default MapWithAspectRatios;
+

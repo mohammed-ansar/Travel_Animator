@@ -19,6 +19,9 @@ export default function Page() {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FF0A0A");
+  const [selectedMapStyle, setSelectedMapStyle] = useState<string>(
+    "mapbox://styles/mapbox/streets-v11" // Default map style
+  );
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -28,13 +31,14 @@ export default function Page() {
           {/* Sidebar or Preview Sidebar */}
           {showPreview ? (
             <>
-              <PreviewSidebar />
+              <PreviewSidebar
+                onSelectStyle={(styleUrl: string) => setSelectedMapStyle(styleUrl)}/>
               <MapWithAspectRatios
                 fromLocation={waypoints.startingPoint}
                 toLocation={waypoints.endingPoint}
                 selectedModel={selectedModel}
                 selectedColor={selectedColor}
-              />
+                selectedMapStyle={selectedMapStyle}/>
             </>
           ) : (
             <>

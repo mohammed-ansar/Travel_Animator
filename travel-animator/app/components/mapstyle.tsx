@@ -138,11 +138,28 @@
 import React, { useState } from "react";
 import ToggleButtons from "./togglebuttons";
 
-const MapStyle = ({ onBack }: { onBack: () => void }) => {
+const MapStyle = ({
+  onBack,
+  onSelectStyle,
+}: {
+  onBack: () => void;
+  onSelectStyle: (styleUrl: string) => void;
+}) => {
   const [activeTab, setActiveTab] = useState<string>("preview");
   const [selectedLayout, setSelectedLayout] = useState<number | null>(null);
 
   const layoutHeight = "80px"; // Height for all layout divs
+
+  const mapStyleUrls = [
+    "mapbox://styles/mapbox/dark-v10", // Dark
+    "mapbox://styles/mapbox/satellite-v9", // Ancient
+    // Add more Mapbox style URLs
+  ];
+
+  const handleLayoutSelect = (index: number) => {
+    setSelectedLayout(index);
+    onSelectStyle(mapStyleUrls[index]);
+  };
 
   // Array of background images for each layout
   const backgroundImages = [
@@ -207,7 +224,8 @@ const MapStyle = ({ onBack }: { onBack: () => void }) => {
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
-            onClick={() => setSelectedLayout(0)}
+            // onClick={() => setSelectedLayout(0)}
+            onClick={() => handleLayoutSelect(0)}
           >
             <h2 className="text-sm">Dark</h2>
           </div>
@@ -221,7 +239,8 @@ const MapStyle = ({ onBack }: { onBack: () => void }) => {
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
-            onClick={() => setSelectedLayout(1)}
+            // onClick={() => setSelectedLayout(1)}
+            onClick={() => handleLayoutSelect(1)}
           >
             <h2 className="text-sm">Ancient</h2>
           </div>
@@ -267,7 +286,8 @@ const MapStyle = ({ onBack }: { onBack: () => void }) => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
-              onClick={() => setSelectedLayout(index + 2)}
+              // onClick={() => setSelectedLayout(index + 2)}
+              onClick={() => handleLayoutSelect(index+2)}
             >
               <h2 className="text-sm">Ancient</h2>
             </div>
