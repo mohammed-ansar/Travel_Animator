@@ -49,7 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [waypoints]); // Dependency on waypoints
 
   return (
-    <aside className="w-1/4 h-5/6 bg-zinc-900 ml-3 p-3 pr-8 rounded-3xl flex flex-col relative">
+    <aside className="w-1/4 h-5/6 ml-3 p-3 pr-5 rounded-3xl flex flex-col relative"
+    style={{backgroundColor: "#121216"}}>
       {/* Toggle Buttons */}
       <ToggleButtons
         activeTab={activeTab}
@@ -60,8 +61,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         setErrorPopup={setErrorPopup}
       />
 
+      {/* Divider Line */}
+  <div className="border-t border-zinc-800 my-4"></div>
+
       <div>
-        <p className="mb-4">0 Waypoints</p>
+        <p className="mb-4 text-sm font-medium"
+        style={{color:"#D2E1F0"}}>0 Waypoints</p>
         {/* Starting Point */}
         <div className="flex items-center">
           <div className="mr-2 text-blue-400">➖</div>
