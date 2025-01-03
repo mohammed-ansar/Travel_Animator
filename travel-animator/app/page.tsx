@@ -19,8 +19,10 @@ export default function Page() {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FF0A0A");
+  const [selectedMapStyle, setSelectedMapStyle] = useState<string>(
+    "mapbox://styles/mapbox/streets-v11" // Default map style
+  );
 
-  
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -28,39 +30,39 @@ export default function Page() {
         <main className="flex h-screen bg-black text-white overflow-hidden">
           {/* Sidebar or Preview Sidebar */}
           {showPreview ? (
-            <PreviewSidebar />
+            <>
+              <PreviewSidebar
+                onSelectStyle={(styleUrl: string) => setSelectedMapStyle(styleUrl)}/>
+              <MapWithAspectRatios
+                fromLocation={waypoints.startingPoint}
+                toLocation={waypoints.endingPoint}
+                selectedModel={selectedModel}
+                selectedColor={selectedColor}
+                selectedMapStyle={selectedMapStyle}/>
+            </>
           ) : (
-            <Sidebar
-              waypoints={waypoints}
-              setWaypoints={setWaypoints}
-              showPreview={showPreview}
-              setShowPreview={setShowPreview}
-              selectedModel={selectedModel}
-              setSelectedModel={setSelectedModel}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-            />
+            <>
+              <Sidebar
+                waypoints={waypoints}
+                setWaypoints={setWaypoints}
+                showPreview={showPreview}
+                setShowPreview={setShowPreview}
+                selectedModel={selectedModel}
+                setSelectedModel={setSelectedModel}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
+              <DynamicMapWithStyles
+                fromLocation={waypoints.startingPoint}
+                toLocation={waypoints.endingPoint}
+                // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
+                selectedModel={selectedModel}
+                selectedColor={selectedColor}
+              />
+            </>
           )}
-          {/* <Sidebar
-            waypoints={waypoints}
-            setWaypoints={setWaypoints}
-            showPreview={showPreview}
-            setShowPreview={setShowPreview}
-            selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
-          /> */}
-          {/* <PreviewSidebar /> */}
           {/* <div className="flex-1 relative"> */}
           {/* <MapWithAspectRatios/> */}
-          <DynamicMapWithStyles
-            fromLocation={waypoints.startingPoint}
-            toLocation={waypoints.endingPoint}
-            // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
-            selectedModel={selectedModel}
-            selectedColor={selectedColor}
-          />
 
           {/* </div> */}
         </main>
