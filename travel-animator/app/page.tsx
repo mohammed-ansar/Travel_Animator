@@ -15,6 +15,7 @@ export default function Page() {
     startingPoint: "",
     endingPoint: "",
   });
+  const [route, setRoute] = useState<GeoJSON.Geometry | null>(null);
   const [showRoute, setShowRoute] = useState(false); // Control when to show the route
   const [showPreview, setShowPreview] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>("car1");
@@ -38,7 +39,9 @@ export default function Page() {
                 toLocation={waypoints.endingPoint}
                 selectedModel={selectedModel}
                 selectedColor={selectedColor}
-                selectedMapStyle={selectedMapStyle}/>
+                selectedMapStyle={selectedMapStyle}
+                route = {route}
+                />
             </>
           ) : (
             <>
@@ -53,11 +56,12 @@ export default function Page() {
                 setSelectedColor={setSelectedColor}
               />
               <DynamicMapWithStyles
+                setWaypoints={setWaypoints}
                 fromLocation={waypoints.startingPoint}
                 toLocation={waypoints.endingPoint}
                 // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
-                selectedModel={selectedModel}
                 selectedColor={selectedColor}
+                setRoute = {setRoute}
               />
             </>
           )}

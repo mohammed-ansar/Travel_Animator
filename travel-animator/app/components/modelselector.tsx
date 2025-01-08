@@ -367,7 +367,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           <div className="relative flex items-center justify-center">
             <div className="bg-inherit p-4 rounded-lg flex items-center justify-center z-10">
               <img
-                src={modelImages[selectedModel]?.[selectedColor] || "/models/default.png"}
+                src={modelImages[selectedModel]?.[selectedColor] || "/models/car1.png"}
                 alt={`Model: ${selectedModel}`}
                 className="w-40 h-40 object-contain"
               />
@@ -472,7 +472,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
          
           <button className="bg-blue-500 hover:bg-blue-600 text-white w-40 px-8 py-3 rounded-full text-sm font-normal"
           onClick={handleSave}>
-
+            Save
           </button>
         </div>
       </div>

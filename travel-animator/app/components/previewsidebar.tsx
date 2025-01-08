@@ -203,6 +203,7 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   const [popupVisible, setPopupVisible] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
   const [currentView, setCurrentView] = useState("Preview"); // State to track the current view
+  const [duration, setDuration] = useState(20);
 
   const handleMapStyleClick = () => {
     setCurrentView("MapStyle"); // Switch to the MapStyle view
@@ -211,6 +212,10 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   const handleBackClick = () => {
     setCurrentView("Preview"); // Switch back to the Preview view
   };
+
+  const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDuration(Number(event.target.value));
+  };  // handling speed of model
 
   return (
     <div
@@ -256,10 +261,11 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
                 min="0"
                 max="60"
                 step="1"
-                defaultValue="20"
+                value={duration}
+                onChange={handleDurationChange}
                 className="w-full"
               />
-              <div className="text-right text-xs mt-1">20 Sec</div>
+              <div className="text-right text-xs mt-1">{duration} Sec</div>
             </div>
           </div>
 

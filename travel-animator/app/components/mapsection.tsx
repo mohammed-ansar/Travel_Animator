@@ -1,4 +1,3 @@
-
 "use-client";
 
 import { useEffect, useRef } from "react";
@@ -7,6 +6,9 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import ReactDOM from "react-dom/client";
 import Plane from "../icons/Plane";
 import Destination from "../icons/Destination";
+import Car from "../icons/Car"; 
+import * as turf from "@turf/turf";
+
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
@@ -15,14 +17,18 @@ interface MapProps {
   fromLocation: string;
   toLocation: string;
   selectedColor: string;
-  selectedModel: string;
+  setRoute: (route:  GeoJSON.Geometry | null)=> void;
+  setWaypoints: React.Dispatch<
+      React.SetStateAction<{ startingPoint: string; endingPoint: string }>
+    >;
 }
 
 const DynamicMapWithStyles: React.FC<MapProps> = ({
   fromLocation,
   toLocation,
   selectedColor,
-  selectedModel,
+  setWaypoints,
+  setRoute,
 }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -46,16 +52,44 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     return data.features?.[0]?.center || null;
   };
 
+  const fetchAddress = async (lngLat: mapboxgl.LngLat) => {
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxgl.accessToken}`
+    );
+    const data = await response.json();
+    return data.features?.[0]?.place_name || "Unknown Location";
+  };
+  
+
+  const addWaypoint = (lngLat: mapboxgl.LngLat) => {
+    const carIconContainer = document.createElement("div");
+    ReactDOM.createRoot(carIconContainer).render(<Car />); // Render a car icon.
+
+    const waypointMarker = new mapboxgl.Marker({
+      element: carIconContainer,
+      draggable: true,
+    })
+      .setLngLat(lngLat)
+      .addTo(mapRef.current!);
+
+    // Update the route when the waypoint is dragged.
+    waypointMarker.on("dragend", () => {
+      drawRoute();
+    });
+
+    markersRef.current.waypoints.push(waypointMarker);
+
+    drawRoute(); // Redraw the route.
+  };
+
   const drawRoute = () => {
     if (!mapRef.current) return;
 
-    // Get coordinates of from and to markers
     const fromCoords = markersRef.current.fromMarker?.getLngLat();
     const toCoords = markersRef.current.toMarker?.getLngLat();
 
     if (!fromCoords || !toCoords) return;
 
-    // Combine waypoints with start and end coordinates
     const coordinates = [
       [fromCoords.lng, fromCoords.lat],
       ...markersRef.current.waypoints.map((marker) => [
@@ -65,28 +99,29 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
       [toCoords.lng, toCoords.lat],
     ];
 
-    // Create a GeoJSON line
-    const lineGeoJSON = {
+    const lineGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
       type: "Feature",
       geometry: {
         type: "LineString",
         coordinates,
       },
+      properties : {},
     };
 
-    // Remove existing route if it exists
+    const curvedLine = turf.bezierSpline(lineGeoJSON);
+    setRoute(curvedLine.geometry);
+
+
     if (mapRef.current.getSource("route")) {
       mapRef.current.removeLayer("route");
       mapRef.current.removeSource("route");
     }
 
-    // Add the new route source
     mapRef.current.addSource("route", {
       type: "geojson",
-      data: lineGeoJSON,
+      data: curvedLine,
     });
 
-    // Add the new route layer
     mapRef.current.addLayer({
       id: "route",
       type: "line",
@@ -96,57 +131,16 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
         "line-cap": "round",
       },
       paint: {
-        "line-color": selectedColor || "#121216", // Use selected color for the line
-        "line-width": 3,
+        "line-color": selectedColor || "#121216",
+        "line-width": 5,
       },
     });
-    // console.log("Selected Color:", selectedColor);
 
-    // Add drag interaction to the route
-    let isDragging = false;
-    let startCoords: mapboxgl.LngLat | null = null;
-
-    // Mouse down on route to start drag
-    mapRef.current.on("mousedown", "route", (e) => {
-      isDragging = true;
-      startCoords = e.lngLat;
-      mapRef.current!.getCanvas().style.cursor = "grabbing";
+    // Add interaction to add waypoints by clicking the route.
+    mapRef.current.on("click", "route", (e) => {
+      const lngLat = e.lngLat;
+      addWaypoint(lngLat); // Add a waypoint on click.
     });
-
-    // Mouse move to detect dragging
-    mapRef.current.on("mousemove", (e) => {
-      if (isDragging && startCoords) {
-        // Optionally: Show visual feedback (e.g., hover effect) during drag
-        mapRef.current!.getCanvas().style.cursor = "grabbing";
-      }
-    });
-
-    // Mouse up to place a marker
-    mapRef.current.on("mouseup", (e) => {
-      if (isDragging) {
-        isDragging = false;
-        mapRef.current!.getCanvas().style.cursor = "";
-
-        // Add a waypoint at the drag end location
-        const lngLat = e.lngLat;
-        addWaypoint(lngLat);
-      }
-    });
-  };
-
-  const addWaypoint = (lngLat: mapboxgl.LngLat) => {
-    const waypointMarker = new mapboxgl.Marker({ draggable: true })
-      .setLngLat(lngLat)
-      .addTo(mapRef.current!);
-
-    // Update the route when the waypoint is dragged
-    waypointMarker.on("dragend", drawRoute);
-
-    // Add the marker to the waypoints array
-    markersRef.current.waypoints.push(waypointMarker);
-
-    // Redraw the route
-    drawRoute();
   };
 
   useEffect(() => {
@@ -166,53 +160,73 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     const updateMap = async () => {
       const fromCoords = await fetchCoordinates(fromLocation);
       const toCoords = await fetchCoordinates(toLocation);
-
+    
       if (markersRef.current.fromMarker) {
         markersRef.current.fromMarker.remove();
       }
-
+    
       if (fromCoords) {
         const planeIconContainer = document.createElement("div");
         ReactDOM.createRoot(planeIconContainer).render(<Plane />);
-
+    
         const fromMarker = new mapboxgl.Marker({
           element: planeIconContainer,
           draggable: true,
         })
           .setLngLat(fromCoords)
           .addTo(mapRef.current);
-
-        fromMarker.on("dragend", drawRoute);
+    
+        fromMarker.on("dragend", async () => {
+          const updatedCoords = fromMarker.getLngLat();
+          const newAddress = await fetchAddress(updatedCoords);
+          setWaypoints((prev) => ({ ...prev, startingPoint: newAddress })); // Update input field
+          drawRoute();
+        });
+    
         markersRef.current.fromMarker = fromMarker;
         mapRef.current.flyTo({ center: fromCoords, zoom: 12 });
       }
-
+    
       if (markersRef.current.toMarker) {
         markersRef.current.toMarker.remove();
       }
-
+    
       if (toCoords) {
         const flagIconContainer = document.createElement("div");
         ReactDOM.createRoot(flagIconContainer).render(<Destination />);
-
+    
         const toMarker = new mapboxgl.Marker({
           element: flagIconContainer,
           draggable: true,
         })
           .setLngLat(toCoords)
           .addTo(mapRef.current);
-
-        toMarker.on("dragend", drawRoute);
+    
+        toMarker.on("dragend", async () => {
+          const updatedCoords = toMarker.getLngLat();
+          const newAddress = await fetchAddress(updatedCoords);
+          setWaypoints((prev) => ({ ...prev, endingPoint: newAddress })); // Update input field
+          drawRoute();
+        });
+    
         markersRef.current.toMarker = toMarker;
       }
-
+    
       if (fromCoords && toCoords) {
+        mapRef.current.fitBounds(
+          [
+            [fromCoords[0], fromCoords[1]],
+            [toCoords[0], toCoords[1]],
+          ],
+          { padding: 60 }
+        );
         drawRoute();
       }
     };
+    
 
     updateMap();
-  }, [fromLocation, toLocation]);
+  }, [fromLocation, toLocation, selectedColor]);
 
   return (
     <div
