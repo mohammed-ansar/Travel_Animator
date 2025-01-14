@@ -23,6 +23,8 @@ export default function Page() {
   const [selectedMapStyle, setSelectedMapStyle] = useState<string>(
     "mapbox://styles/mapbox/streets-v11" // Default map style
   );
+  const [duration, setDuration] = useState(20);
+  const [modelSize, setModelSize] = useState(0.8);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -33,7 +35,12 @@ export default function Page() {
           {showPreview ? (
             <>
               <PreviewSidebar
-                onSelectStyle={(styleUrl: string) => setSelectedMapStyle(styleUrl)}/>
+                onSelectStyle={(styleUrl: string) => setSelectedMapStyle(styleUrl)}
+                duration = {duration}
+                setDuration = {setDuration}
+                modelSize = {modelSize}
+                setModelSize = {setModelSize}
+                />
               <MapWithAspectRatios
                 fromLocation={waypoints.startingPoint}
                 toLocation={waypoints.endingPoint}
@@ -41,6 +48,9 @@ export default function Page() {
                 selectedColor={selectedColor}
                 selectedMapStyle={selectedMapStyle}
                 route = {route}
+                duration = {duration}
+                modelSize = {modelSize}
+
                 />
             </>
           ) : (

@@ -186,10 +186,18 @@ import MapStyle from "./mapstyle";
 
 interface PreviewSidebarProps {
   onSelectStyle: (styleUrl: string) => void; // Callback for selecting a map style
+  duration : number;
+  setDuration: (duration: number) => void;
+  modelSize : number;
+  setModelSize: (modelSize: number) => void;
 }
 
 const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   onSelectStyle,
+  duration,
+  setDuration,
+  modelSize,
+  setModelSize
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isFlagEnabled, setIsFlagEnabled] = useState(true);
@@ -203,7 +211,8 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   const [popupVisible, setPopupVisible] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
   const [currentView, setCurrentView] = useState("Preview"); // State to track the current view
-  const [duration, setDuration] = useState(20);
+
+
 
   const handleMapStyleClick = () => {
     setCurrentView("MapStyle"); // Switch to the MapStyle view
@@ -216,6 +225,11 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDuration(Number(event.target.value));
   };  // handling speed of model
+
+
+  const handleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setModelSize(parseFloat(e.target.value));
+  };
 
   return (
     <div
@@ -245,21 +259,22 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
               <label className="block text-sm mb-1">Model size</label>
               <input
                 type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                defaultValue="0.8"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={modelSize} // Controlled input
+                onChange={handleSizeChange}
                 className="w-full"
               />
-              <div className="text-right text-xs mt-1">0.80</div>
+              <div className="text-right text-xs mt-1">{modelSize.toFixed(1)}</div>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm mb-1">Duration</label>
               <input
                 type="range"
-                min="0"
-                max="60"
+                min="9"
+                max="53"
                 step="1"
                 value={duration}
                 onChange={handleDurationChange}
