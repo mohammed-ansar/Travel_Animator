@@ -25,6 +25,7 @@ export default function Page() {
   );
   const [duration, setDuration] = useState(20);
   const [modelSize, setModelSize] = useState(0.8);
+  
 
   return (
     <html lang="en" suppressHydrationWarning>

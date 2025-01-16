@@ -103,12 +103,15 @@ import { MdAltRoute } from "react-icons/md";
 import SignInModal from "./signin";
 import ProfileDrawer from "./profiledrawer";
 import ProModal from "./promodal"; // Import the ProModal component
+import { useUIContext } from "../context/UIContext";
 
 export const Navigation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Tracks authentication state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer state for profile
   const [isProModalOpen, setIsProModalOpen] = useState(false); // PRO Modal state
+  const { setShowExportCard } = useUIContext();
+  
 
   // Handles user authentication
   const handleAuthentication = () => {
@@ -151,7 +154,12 @@ export const Navigation = () => {
           <img src="/bin.png" alt="Icon" className="w-5 h-5" />
         </button>
         <button className="px-4 py-2 text-white text-sm font-semibold rounded-xl hover:bg-blue-500 mr-2"
-        style={{backgroundColor:"#0A84FF"}}>
+        style={{backgroundColor:"#0A84FF"}}
+        onClick={()=>{setShowExportCard(true)
+          console.log("export card")
+        }
+        }
+        >
           Export video
         </button>
 

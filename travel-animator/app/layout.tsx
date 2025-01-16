@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { Inter } from 'next/font/google'
 import './components/navigation'
 import { Navigation } from './components/navigation'
+import { UIProvider } from './context/UIContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,11 +31,13 @@ export default function RootLayout({
         ></script>
       </Head> */}
       <body className={inter.className}>
+      <UIProvider>
         <header className='bg-black text-white p-4 text-center'>
           {/* <p>Hello World</p> */}
           <Navigation/>
         </header>
         {children}
+        </UIProvider>
       </body>
     </html>
   )

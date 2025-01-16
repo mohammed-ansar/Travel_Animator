@@ -6,8 +6,9 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import ReactDOM from "react-dom/client";
 import { along, length, bearing } from "@turf/turf";
 import * as turf from "@turf/turf";
-
-
+import { useUIContext } from "../context/UIContext";
+import { ExportVideoCard } from "./ExportVideoCard";
+import { ExportProgressCard } from "./ExportProgressCard";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
@@ -52,7 +53,7 @@ const MapWithAspectRatios: React.FC<MapProps & { selectedMapStyle: string }> = (
   const [mapAspectRatio, setMapAspectRatio] = useState(aspectRatio);
   const animationRef = useRef<mapboxgl.Marker | null>(null);
   const stepRef = useRef(0);
-
+  const {showExportCard,showProgressCard} = useUIContext();
 
   const fetchCoordinates = async (place: string) => {
     const response = await fetch(
@@ -69,7 +70,8 @@ const MapWithAspectRatios: React.FC<MapProps & { selectedMapStyle: string }> = (
   
     const routeCoordinates = route.coordinates;
     const routeLength = routeCoordinates.length;
-  
+    const waypoints = markersRef.current.waypoints || []; // Fix for waypoints
+
   
     if (stepRef.current >= routeLength) {
       // Show the entire route after animation completes
@@ -97,8 +99,11 @@ const MapWithAspectRatios: React.FC<MapProps & { selectedMapStyle: string }> = (
  );
 
  // Step duration calculation based on zoom level and duration
- const totalDurationMs = duration * 1000; // Convert duration to milliseconds
- const stepDuration = totalDurationMs / routeLength;
+ const totalFrames = Math.max(1, 30 - waypoints.length); // Total frames (ensure at least 1 frame)
+ const totalDurationMs = duration * 1000; // Total animation duration in milliseconds
+//  const stepDuration = totalDurationMs / totalFrames; 
+const stepDuration = totalDurationMs / routeLength;
+
     // Draw the animated route up to the current point
     const animatedRoute = {
       type: "Feature",
@@ -158,11 +163,11 @@ const MapWithAspectRatios: React.FC<MapProps & { selectedMapStyle: string }> = (
   
     // Smoothly follow the model's movement
     mapRef.current.easeTo({
-      center: currentPoint,
+      center: animationRef.current.getLngLat(),
       zoom: zoomLevel, // Dynamic zoom based on duration
       pitch: 60, // Add a 3D effect
       speed: 0.3, // Slow panning speed for smooth effect
-      duration: 500,
+      // duration: 500,
       bearing: turf.bearing(
         turf.point(currentPoint),
         turf.point(routeCoordinates[Math.min(stepRef.current + 1, routeLength - 1)])
@@ -292,6 +297,30 @@ useEffect(() => {
         alignItems: "center",
       }}
     >
+             {/* Conditionally render ExportVideoCard */}
+    {showExportCard && (
+      <div 
+        className="absolute top-0 right-0  " 
+        style={{ zIndex: 100 }} 
+      >
+        <ExportVideoCard 
+          
+        />
+      </div>
+    )}
+
+    {/* Conditionally render ExportProgressCard */}
+    {showProgressCard && (
+      <div 
+        className="absolute  transform -translate-x-1/7 -translate-y-1/2 " 
+        style={{ 
+          zIndex: 100,
+          width : '100%'
+        }} 
+      >
+        <ExportProgressCard />
+      </div>
+    )}
       {/* Control Buttons */}
       <div className="absolute top-5 right-5 flex flex-row gap-5 z-10">
         {/* Aspect Ratio Dropdown */}
@@ -427,6 +456,8 @@ useEffect(() => {
             borderRadius: "15px",
           }}
         />
+
+   
       </div>
     </div>
   );
