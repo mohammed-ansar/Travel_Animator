@@ -132,15 +132,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             <div className="bg-inherit p-4 rounded-lg flex items-center justify-center z-10">
             <img
                   src={
-                    // Prioritize selected model's thumbnail if available
                     models.find((m) => m.name === selectedModel)?.texture_set[0]?.thumbnail ||
                   
-                    // If no selected model or no thumbnail for selected model:
                     (
-                      // Filter free models (assuming `!model.premium` indicates a free model)
                       models.filter((model) => !model.premium)
                   
-                      // If there are free models:
                       .length > 0 &&
                   
                       // Use the first free model's thumbnail
