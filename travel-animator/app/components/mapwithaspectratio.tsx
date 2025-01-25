@@ -222,7 +222,7 @@ const MapWithAspectRatios: React.FC<
       zoom: zoomLevel, // Dynamic zoom based on duration
       pitch: 60, // Add a 3D effect
       speed: 0.3, // Slow panning speed for smooth effect
-      // duration: 500,
+      duration: 500,
       bearing: turf.bearing(
         turf.point(currentPoint),
         turf.point(
