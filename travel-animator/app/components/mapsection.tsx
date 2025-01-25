@@ -1,14 +1,14 @@
 "use-client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import ReactDOM from "react-dom/client";
 import Plane from "../icons/Plane";
 import Destination from "../icons/Destination";
-import Car from "../icons/Car"; 
+import Car from "../icons/Car";
+import ModelSelector from "./modelselector";
 import * as turf from "@turf/turf";
-
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
@@ -17,10 +17,10 @@ interface MapProps {
   fromLocation: string;
   toLocation: string;
   selectedColor: string;
-  setRoute: (route:  GeoJSON.Geometry | null)=> void;
+  setRoute: (route: GeoJSON.Geometry | null) => void;
   setWaypoints: React.Dispatch<
-      React.SetStateAction<{ startingPoint: string; endingPoint: string }>
-    >;
+    React.SetStateAction<{ startingPoint: string; endingPoint: string }>
+  >;
 }
 
 const DynamicMapWithStyles: React.FC<MapProps> = ({
@@ -41,6 +41,11 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     toMarker: null,
     waypoints: [],
   });
+  const [showModelSelector, setShowModelSelector] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedColorModel, setSelectedColorModel] = useState<string | null>(
+    null
+  );
 
   const fetchCoordinates = async (place: string) => {
     const response = await fetch(
@@ -59,7 +64,6 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     const data = await response.json();
     return data.features?.[0]?.place_name || "Unknown Location";
   };
-  
 
   const addWaypoint = (lngLat: mapboxgl.LngLat) => {
     const carIconContainer = document.createElement("div");
@@ -76,6 +80,37 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     waypointMarker.on("dragend", () => {
       drawRoute();
     });
+
+    // Remove the waypoint on double-click.
+    waypointMarker.getElement().addEventListener("dblclick", () => {
+      const index = markersRef.current.waypoints.indexOf(waypointMarker);
+      if (index !== -1) {
+        markersRef.current.waypoints.splice(index, 1); // Remove from waypoints list
+        waypointMarker.remove(); // Remove marker from the map
+        drawRoute(); // Redraw the route
+      }
+    });
+
+    // Long press logic for waypoint.
+    let longPressTimeout: NodeJS.Timeout;
+
+    const handleLongPressStart = () => {
+      longPressTimeout = setTimeout(() => {
+        setShowModelSelector(true); // Open the ModelSelector.
+      }, 500); // 500ms long press duration.
+    };
+
+    const handleLongPressEnd = () => {
+      clearTimeout(longPressTimeout); // Clear timeout on early release.
+    };
+
+    const waypointElement = waypointMarker.getElement();
+    waypointElement.addEventListener("mousedown", handleLongPressStart);
+    waypointElement.addEventListener("mouseup", handleLongPressEnd);
+    waypointElement.addEventListener("mouseleave", handleLongPressEnd);
+    waypointElement.addEventListener("touchstart", handleLongPressStart);
+    waypointElement.addEventListener("touchend", handleLongPressEnd);
+    waypointElement.addEventListener("touchcancel", handleLongPressEnd);
 
     markersRef.current.waypoints.push(waypointMarker);
 
@@ -105,12 +140,11 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
         type: "LineString",
         coordinates,
       },
-      properties : {},
+      properties: {},
     };
 
     const curvedLine = turf.bezierSpline(lineGeoJSON);
     setRoute(curvedLine.geometry);
-
 
     if (mapRef.current.getSource("route")) {
       mapRef.current.removeLayer("route");
@@ -160,58 +194,58 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
     const updateMap = async () => {
       const fromCoords = await fetchCoordinates(fromLocation);
       const toCoords = await fetchCoordinates(toLocation);
-    
+
       if (markersRef.current.fromMarker) {
         markersRef.current.fromMarker.remove();
       }
-    
+
       if (fromCoords) {
         const planeIconContainer = document.createElement("div");
         ReactDOM.createRoot(planeIconContainer).render(<Plane />);
-    
+
         const fromMarker = new mapboxgl.Marker({
           element: planeIconContainer,
           draggable: true,
         })
           .setLngLat(fromCoords)
           .addTo(mapRef.current);
-    
+
         fromMarker.on("dragend", async () => {
           const updatedCoords = fromMarker.getLngLat();
           const newAddress = await fetchAddress(updatedCoords);
           setWaypoints((prev) => ({ ...prev, startingPoint: newAddress })); // Update input field
           drawRoute();
         });
-    
+
         markersRef.current.fromMarker = fromMarker;
         mapRef.current.flyTo({ center: fromCoords, zoom: 12 });
       }
-    
+
       if (markersRef.current.toMarker) {
         markersRef.current.toMarker.remove();
       }
-    
+
       if (toCoords) {
         const flagIconContainer = document.createElement("div");
         ReactDOM.createRoot(flagIconContainer).render(<Destination />);
-    
+
         const toMarker = new mapboxgl.Marker({
           element: flagIconContainer,
           draggable: true,
         })
           .setLngLat(toCoords)
           .addTo(mapRef.current);
-    
+
         toMarker.on("dragend", async () => {
           const updatedCoords = toMarker.getLngLat();
           const newAddress = await fetchAddress(updatedCoords);
           setWaypoints((prev) => ({ ...prev, endingPoint: newAddress })); // Update input field
           drawRoute();
         });
-    
+
         markersRef.current.toMarker = toMarker;
       }
-    
+
       if (fromCoords && toCoords) {
         mapRef.current.fitBounds(
           [
@@ -223,17 +257,37 @@ const DynamicMapWithStyles: React.FC<MapProps> = ({
         drawRoute();
       }
     };
-    
 
     updateMap();
   }, [fromLocation, toLocation, selectedColor]);
 
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (mapRef.current.getSource("route")) {
+      mapRef.current.setPaintProperty("route", "line-color", selectedColor);
+    }
+  }, [selectedColor]); // Reapply route color whenever the color changes
+
   return (
-    <div
-      className="mr-3 ml-3 rounded-3xl border border-gray-800"
-      ref={mapContainerRef}
-      style={{ flex: 1, height: "83vh", width: "100%" }}
-    />
+    <>
+      <div
+        className="mr-3 ml-3 rounded-3xl border border-gray-800"
+        ref={mapContainerRef}
+        style={{ flex: 1, height: "83vh", width: "100%" }}
+      />
+      {showModelSelector && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <ModelSelector
+            selectedModel={selectedModel}
+            selectedColor={selectedColor}
+            setSelectedModel={setSelectedModel}
+            setSelectedColor={setSelectedColorModel}
+            onClose={() => setShowModelSelector(false)}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

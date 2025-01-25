@@ -7,6 +7,7 @@ import Sidebar from "./components/sidebar";
 import DynamicMapWithStyles from "./components/mapsection";
 import PreviewSidebar from "./components/previewsidebar";
 import MapWithAspectRatios from "./components/mapwithaspectratio";
+import ToggleButtons from "./components/togglebuttons";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,70 +17,83 @@ export default function Page() {
     endingPoint: "",
   });
   const [route, setRoute] = useState<GeoJSON.Geometry | null>(null);
-  const [showRoute, setShowRoute] = useState(false); // Control when to show the route
-  const [showPreview, setShowPreview] = useState(false);
+  const [activeTab, setActiveTab] = useState("routes"); // Manages active tab
+  const [showModelSelector, setShowModelSelector] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [errorPopup, setErrorPopup] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>("car1");
   const [selectedColor, setSelectedColor] = useState<string>("#FF0A0A");
   const [selectedMapStyle, setSelectedMapStyle] = useState<string>(
-    "mapbox://styles/mapbox/streets-v11" // Default map style
+    "mapbox://styles/mapbox/streets-v11"
   );
   const [duration, setDuration] = useState(20);
   const [modelSize, setModelSize] = useState(0.8);
-  
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/* Main Content Layout */}
         <main className="flex h-screen bg-black text-white overflow-hidden">
-          {/* Sidebar or Preview Sidebar */}
-          {showPreview ? (
+          {/* Toggle Buttons */}
+          <div
+            className="w-1/5 absolute top-24 left-11 p-1 rounded-3xl shadow-md z-10"
+            style={{ backgroundColor: "#121216" }}
+          >
+            <ToggleButtons
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              waypoints={waypoints}
+              setShowModelSelector={setShowModelSelector}
+              setPopupVisible={setPopupVisible}
+              setErrorPopup={setErrorPopup}
+            />
+          </div>
+
+          {/* Conditional Sidebar Rendering */}
+          {activeTab === "preview" ? (
             <>
               <PreviewSidebar
-                onSelectStyle={(styleUrl: string) => setSelectedMapStyle(styleUrl)}
-                duration = {duration}
-                setDuration = {setDuration}
-                modelSize = {modelSize}
-                setModelSize = {setModelSize}
-                />
+                onSelectStyle={(styleUrl: string) =>
+                  setSelectedMapStyle(styleUrl)
+                }
+                duration={duration}
+                setDuration={setDuration}
+                modelSize={modelSize}
+                setModelSize={setModelSize}
+              />
               <MapWithAspectRatios
                 fromLocation={waypoints.startingPoint}
                 toLocation={waypoints.endingPoint}
                 selectedModel={selectedModel}
                 selectedColor={selectedColor}
                 selectedMapStyle={selectedMapStyle}
-                route = {route}
-                duration = {duration}
-                modelSize = {modelSize}
-
-                />
+                route={route}
+                duration={duration}
+                modelSize={modelSize}
+              />
             </>
           ) : (
             <>
               <Sidebar
                 waypoints={waypoints}
                 setWaypoints={setWaypoints}
-                showPreview={showPreview}
-                setShowPreview={setShowPreview}
+                showPreview={activeTab === "preview"}
+                setShowPreview={() => setActiveTab("preview")}
                 selectedModel={selectedModel}
                 setSelectedModel={setSelectedModel}
                 selectedColor={selectedColor}
                 setSelectedColor={setSelectedColor}
+                errorPopup={errorPopup}
+                setErrorPopup={setErrorPopup} // Pass down the errorPopup handler
               />
               <DynamicMapWithStyles
                 setWaypoints={setWaypoints}
                 fromLocation={waypoints.startingPoint}
                 toLocation={waypoints.endingPoint}
-                // {/* // showRoute={showRoute} // Pass showRoute prop to control route visibility */}
                 selectedColor={selectedColor}
-                setRoute = {setRoute}
+                setRoute={setRoute}
               />
             </>
           )}
-          {/* <div className="flex-1 relative"> */}
-          {/* <MapWithAspectRatios/> */}
-
-          {/* </div> */}
         </main>
       </body>
     </html>

@@ -1,4 +1,3 @@
-
 // import React, { useState } from "react";
 // import { FaFlag, FaMapMarkerAlt } from "react-icons/fa";
 // import { PiMapPinAreaFill } from "react-icons/pi";
@@ -7,8 +6,8 @@
 // import MapStyle from "./mapstyle";
 
 // interface PreviewSidebarProps{
-//   // selectedMapStyle: string;  
-//   // setSelectedMapStyle: React.Dispatch<React.SetStateAction<string>>; 
+//   // selectedMapStyle: string;
+//   // setSelectedMapStyle: React.Dispatch<React.SetStateAction<string>>;
 //   onSelectStyle: (styleUrl: string) => void;
 // }
 
@@ -17,7 +16,6 @@
 //   // setSelectedMapStyle,
 //   onSelectStyle,
 
-  
 // }) => {
 //   const [isEditing, setIsEditing] = useState(false);
 //   const [isFlagEnabled, setIsFlagEnabled] = useState(true);
@@ -176,7 +174,6 @@
 
 // export default PreviewSidebar;
 
-
 import React, { useState } from "react";
 import { FaFlag, FaMapMarkerAlt } from "react-icons/fa";
 import { PiMapPinAreaFill } from "react-icons/pi";
@@ -186,9 +183,9 @@ import MapStyle from "./mapstyle";
 
 interface PreviewSidebarProps {
   onSelectStyle: (styleUrl: string) => void; // Callback for selecting a map style
-  duration : number;
+  duration: number;
   setDuration: (duration: number) => void;
-  modelSize : number;
+  modelSize: number;
   setModelSize: (modelSize: number) => void;
 }
 
@@ -197,7 +194,7 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   duration,
   setDuration,
   modelSize,
-  setModelSize
+  setModelSize,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isFlagEnabled, setIsFlagEnabled] = useState(true);
@@ -212,8 +209,6 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
   const [errorPopup, setErrorPopup] = useState(false);
   const [currentView, setCurrentView] = useState("Preview"); // State to track the current view
 
-
-
   const handleMapStyleClick = () => {
     setCurrentView("MapStyle"); // Switch to the MapStyle view
   };
@@ -224,8 +219,7 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
 
   const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDuration(Number(event.target.value));
-  };  // handling speed of model
-
+  }; // handling speed of model
 
   const handleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setModelSize(parseFloat(e.target.value));
@@ -233,7 +227,7 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
 
   return (
     <div
-      className="w-1/4 h-5/6 ml-3 p-3 border border-gray-800 rounded-3xl flex flex-col relative"
+      className="w-1/4 h-5/6 ml-3 p-3 pt-8 border border-gray-800 rounded-3xl flex flex-col relative"
       style={{
         backgroundColor: "#121216",
         display: "flex",
@@ -244,18 +238,18 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
     >
       {currentView === "Preview" ? (
         <div className="mb-auto">
-          <ToggleButtons
+          {/* <ToggleButtons
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             waypoints={waypoints}
             setShowModelSelector={setShowModelSelector}
             setPopupVisible={setPopupVisible}
             setErrorPopup={setErrorPopup}
-          />
+          /> */}
 
           {/* Sliders */}
-          <div className="py-4">
-            <div className="mb-6">
+          <div className="my-8 py-4">
+            <div className="mb-2">
               <label className="block text-sm mb-1">Model size</label>
               <input
                 type="range"
@@ -266,7 +260,9 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
                 onChange={handleSizeChange}
                 className="w-full"
               />
-              <div className="text-right text-xs mt-1">{modelSize.toFixed(1)}</div>
+              <div className="text-right text-xs mt-1">
+                {modelSize.toFixed(1)}
+              </div>
             </div>
 
             <div className="mb-6">
@@ -370,4 +366,3 @@ const PreviewSidebar: React.FC<PreviewSidebarProps> = ({
 };
 
 export default PreviewSidebar;
-

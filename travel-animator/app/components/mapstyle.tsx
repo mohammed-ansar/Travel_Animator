@@ -1,4 +1,3 @@
-
 // import React, { useState } from "react";
 // import ToggleButtons from "./togglebuttons";
 
@@ -173,17 +172,17 @@ const MapStyle = ({
   return (
     <div className="mb-auto h-full">
       {/* ToggleButtons Component */}
-      <ToggleButtons
+      {/* <ToggleButtons
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         waypoints={{ startingPoint: "", endingPoint: "" }}
         setShowModelSelector={() => {}}
         setPopupVisible={() => {}}
         setErrorPopup={() => {}}
-      />
+      /> */}
 
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-6 mt-12">
         <button className="ml-2 mr-3" onClick={onBack}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -265,7 +264,9 @@ const MapStyle = ({
 
             {/* Content */}
             <div className="relative z-10 flex items-center justify-between">
-              <h2 className="font-semibold text-sm">A wide collection of map styles</h2>
+              <h2 className="font-semibold text-sm">
+                A wide collection of map styles
+              </h2>
               <button className="bg-white text-green-700 px-2 py-1 text-xs rounded-3xl hover:bg-gray-200 flex items-center">
                 <span className="font-normal">GET</span>&nbsp;
                 <span className="font-bold">PRO</span>
@@ -278,16 +279,20 @@ const MapStyle = ({
             <div
               key={index}
               className={`bg-gray-800 p-4 rounded-2xl text-white flex flex-col justify-end cursor-pointer ${
-                selectedLayout === index + 2 ? "border-2 border-blue-500" : "border-none"
+                selectedLayout === index + 2
+                  ? "border-2 border-blue-500"
+                  : "border-none"
               }`}
               style={{
                 height: layoutHeight,
-                backgroundImage: `url(${backgroundImages[index % backgroundImages.length]})`,
+                backgroundImage: `url(${
+                  backgroundImages[index % backgroundImages.length]
+                })`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
               // onClick={() => setSelectedLayout(index + 2)}
-              onClick={() => handleLayoutSelect(index+2)}
+              onClick={() => handleLayoutSelect(index + 2)}
             >
               <h2 className="text-sm">Ancient</h2>
             </div>
