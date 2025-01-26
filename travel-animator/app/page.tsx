@@ -28,6 +28,8 @@ export default function Page() {
   );
   const [duration, setDuration] = useState(20);
   const [modelSize, setModelSize] = useState(0.8);
+  const [isFlagEnabled, setIsFlagEnabled] = useState(true);
+
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -59,6 +61,8 @@ export default function Page() {
                 setDuration={setDuration}
                 modelSize={modelSize}
                 setModelSize={setModelSize}
+                isFlagEnabled={isFlagEnabled}
+                setIsFlagEnabled={setIsFlagEnabled}
               />
               <MapWithAspectRatios
                 fromLocation={waypoints.startingPoint}
@@ -69,6 +73,7 @@ export default function Page() {
                 route={route}
                 duration={duration}
                 modelSize={modelSize}
+                isFlagEnabled={isFlagEnabled}
               />
             </>
           ) : (
