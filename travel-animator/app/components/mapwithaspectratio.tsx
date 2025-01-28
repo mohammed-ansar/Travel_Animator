@@ -251,6 +251,7 @@ import { useUIContext } from "../context/UIContext";
 import { ExportVideoCard } from "./ExportVideoCard";
 import { ExportProgressCard } from "./ExportProgressCard";
 
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
 

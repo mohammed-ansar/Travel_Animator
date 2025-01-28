@@ -132,19 +132,18 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             <div className="bg-inherit p-4 rounded-lg flex items-center justify-center z-10">
             <img
                   src={
-                    models.find((m) => m.name === selectedModel)?.texture_set[0]?.thumbnail ||
+                    models.find((m) => m.name === selectedModel)?.model_glb ||
                   
                     (
                       models.filter((model) => !model.premium)
                   
                       .length > 0 &&
                   
-                      // Use the first free model's thumbnail
-                      models.find((model) => !model.premium)?.texture_set[0]?.thumbnail
+                      models.find((model) => !model.premium)?.model_glb
                     ) ||
                   
                     // Default image if no free models or thumbnails available
-                    ""
+                    "models/default.png"
                   }
                 />
             </div>
