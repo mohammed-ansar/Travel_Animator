@@ -633,7 +633,7 @@ fetchCountryForPoint(currentPoint);
   
   const flagStyles :CSSProperties = {
     position: "absolute",
-    zIndex: 1000,
+    zIndex: 100,
   };
   
   const exportCardStyles :CSSProperties = {
@@ -688,7 +688,7 @@ fetchCountryForPoint(currentPoint);
   
     {/* Export Cards */}
     {showExportCard && <div style={exportCardStyles}><ExportVideoCard /></div>}
-    {showProgressCard && <div className="absolute w-full transform -translate-x-1/7 -translate-y-1/2 z-100"><ExportProgressCard /></div>}
+    {showProgressCard && <div className="absolute w-full transform -translate-x-1/7 -translate-y-1/2" style={{zIndex:101}}><ExportProgressCard /></div>}
   
     {/* Control Buttons */}
     <div className="absolute top-5 right-5 flex flex-row gap-5 z-10">
@@ -733,6 +733,7 @@ fetchCountryForPoint(currentPoint);
         width: "100%",
         height: "100%",
         overflow: "visible",
+
       }}
     >
       <div
@@ -747,6 +748,8 @@ fetchCountryForPoint(currentPoint);
           borderRadius: "15px",
           minWidth: "100px",
           minHeight: "100px",
+          zIndex: 99,
+
         }}
       />
     </div>

@@ -19,7 +19,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ onClose, setIsAuthenticat
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center " style={{zIndex:102}}>
       {/* Drawer Container */}
       <div
         className="rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 flex overflow-hidden shadow-lg"

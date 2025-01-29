@@ -16,7 +16,7 @@ const SignInModal: React.FC<SignInModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex:102}}>
       <div className="bg-zinc-900 rounded-3xl w-4/5 md:w-2/3 lg:w-1/2 flex overflow-hidden shadow-lg">
         <div
           className="w-1/2 flex flex-col justify-between items-center p-0 relative"
