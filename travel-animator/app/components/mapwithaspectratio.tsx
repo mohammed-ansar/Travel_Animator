@@ -413,6 +413,28 @@ const fetchCountryForPoint = async (lngLat: number[]) => {
 
 fetchCountryForPoint(currentPoint);
 
+    // Total Distance in meters
+    const calculateTotalDistance = (coordinates: number[][]): number => {
+      let totalDistance = 0;
+      for (let i = 0; i < coordinates.length - 1; i++) {
+        totalDistance += turf.distance(
+          turf.point(coordinates[i]),
+          turf.point(coordinates[i + 1])
+        ) * 1000; // Convert to meters
+      }
+      return totalDistance;
+    };
+ 
+    const totalDistance = calculateTotalDistance(routeCoordinates); 
+    const speed = totalDistance / duration; // Speed in meters per second
+
+    const stepDistance =
+      turf.distance(
+        turf.point(routeCoordinates[stepRef.current]),
+        turf.point(routeCoordinates[Math.min(stepRef.current + 1, routeLength - 1)])
+      ) * 1000; // Convert to meters
+
+    const stepDuration = (stepDistance / speed) * 1000; // Convert seconds to milliseconds
 
     // Animated route drawing logic
     const animatedRoute = {
@@ -469,47 +491,27 @@ fetchCountryForPoint(currentPoint);
       animationRef.current.setLngLat(currentPoint);
     }
 
-    const calculateTotalDistance = (coordinates) => {
-      let totalDistance = 0;
-      for (let i = 0; i < coordinates.length - 1; i++) {
-        totalDistance += turf.distance(turf.point(coordinates[i]), turf.point(coordinates[i + 1]));
-      }
-      return totalDistance;
-    };
-    const totalDistance = calculateTotalDistance(routeCoordinates); // Get total distance
-    const speed = totalDistance / duration; // Distance per second
+
+    // mapRef.current.flyTo({ 
+    //   zoom: Math.max(10, mapRef.current.getZoom()), // Keep zoom level stable
+    // });
     
-    const stepDistance = turf.distance(
-      turf.point(routeCoordinates[stepRef.current]),
-      turf.point(routeCoordinates[Math.min(stepRef.current + 1, routeLength - 1)])
-    );
-    const stepDuration = (stepDistance / speed) * 1000; // Convert to milliseconds
-    
+  const nextPoint = routeCoordinates[Math.min(stepRef.current + 1, routeLength - 1)];
+  const bearing = turf.bearing(turf.point(currentPoint), turf.point(nextPoint));
 
-    mapRef.current.flyTo({ 
-      zoom: Math.max(10, mapRef.current.getZoom()), // Keep zoom level stable
-    });
-
-
+  if (stepRef.current % 5 === 0) {
     mapRef.current.easeTo({
-      center: animationRef.current.getLngLat(), // Center at model position
-      pitch: 60, // Maintain perspective view
-      bearing: turf.bearing(
-        turf.point(currentPoint),
-        turf.point(routeCoordinates[Math.min(stepRef.current + 1, routeLength - 1)])
-      ),
-      duration: stepDuration, // Sync camera movement with step timing
+      center: animationRef.current.getLngLat(),
+      pitch: 60,
+      bearing: bearing,
+      duration: stepDuration,
     });
-    
+  }
 
-    stepRef.current++;
-    setTimeout(
-      () => requestAnimationFrame(animateModelAlongRoute),
-      stepDuration
-    );
-  };
+  stepRef.current++;
+  requestAnimationFrame(() => animateModelAlongRoute());
+};
 
-  
   useEffect(() => {
     if (fromLocation) {
       fetchCountryFlag(fromLocation);
