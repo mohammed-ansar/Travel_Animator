@@ -10,8 +10,7 @@ import Car from "../icons/Car";
 import ModelSelector from "./modelselector";
 import * as turf from "@turf/turf";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYW5zYXJwbGsiLCJhIjoiY201MGl5YXVxMDJrazJxczdmOWxpYnlkdyJ9.WTtiaIwKI-NlrXjjYXDzSg";
+mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN;
 
 interface MapProps {
   fromLocation: string;
