@@ -3,7 +3,7 @@ import React from 'react';
 type Model = {
   name: string;
   model_glb: string;
-  image?: string; // Optional field for model image
+  image?: string; 
 };
 
 type ModelsPageProps = {

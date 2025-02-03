@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import ModelSelector from "./modelselector";
 import Plane from "../icons/Plane";
 import Destination from "../icons/Destination";
+import Car from "../icons/Car"
 import ToggleButtons from "./togglebuttons";
 
 interface SidebarProps {
   waypoints: {
     startingPoint: string;
     endingPoint: string;
+    middlePoints: string[];
   };
   setWaypoints: React.Dispatch<
-    React.SetStateAction<{ startingPoint: string; endingPoint: string }>
+    React.SetStateAction<{ startingPoint: string; endingPoint: string; middlePoints: string[]; }>
   >;
   selectedModel: string;
   setSelectedModel: (model: string) => void;
@@ -121,6 +123,53 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
         </div>
+        {/* Mid Waypoints (Dynamically Added) */}
+        {(waypoints.middlePoints || []).map((point, index) => (
+          <div key={index} className="flex items-center mb-2">
+            <div className="mr-4 mb-8 ml-2 text-3xl text-white"> ͇ </div>
+            <div className="flex items-center bg-zinc-800 p-2 rounded-3xl w-full">
+              <div className="mr-1">
+                <Car />
+              </div>
+              <input
+                type="text"
+                placeholder={`Waypoint ${index + 1}`}
+                value={point}
+                onChange={(e) => {
+                  const newWaypoints = [...waypoints.middlePoints];
+                  newWaypoints[index] = e.target.value;
+                  setWaypoints({ ...waypoints, middlePoints: newWaypoints });
+                }}
+                className="flex-1 bg-zinc-800 text-white outline-none pl-2 mr-2 w-full overflow-hidden text-ellipsis"
+              />
+              {/* Remove Waypoint Button */}
+              <button
+                onClick={() => {
+                  setWaypoints({
+                    ...waypoints,
+                    middlePoints: waypoints.middlePoints.filter((_, i) => i !== index),
+                  });
+                }}
+                className="ml-2 text-red-500"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        ))}
+        {/* Add Destinations */}
+        <button
+          onClick={() => {
+            setWaypoints({
+              ...waypoints,
+              middlePoints: [...waypoints.middlePoints, ""], // Add a new empty waypoint
+            });
+          }}
+          className="w-full py-2 text-blue-500 rounded-lg mt-4"
+          style={{ backgroundColor: "#0A84FF14" }}
+        >
+          + Add destinations
+        </button>
       </div>
 
       {/* Popup Box */}

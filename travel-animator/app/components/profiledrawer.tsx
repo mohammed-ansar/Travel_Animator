@@ -6,7 +6,10 @@ interface ProfileDrawerProps {
   setIsAuthenticated: React.Dispatch<SetStateAction<boolean>>; //To reset authentication state
 }
 
-const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ onClose, setIsAuthenticated }) => {
+const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
+  onClose,
+  setIsAuthenticated,
+}) => {
   const [selected, setSelected] = useState("");
 
   const handleSelect = (link: SetStateAction<string>) => {
@@ -15,11 +18,14 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ onClose, setIsAuthenticat
 
   const handleSignOut = () => {
     setIsAuthenticated(false); //Reset authentication state
-    onClose(); //Close the profile drawer
+    onClose(); //Close the profile
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center " style={{zIndex:102}}>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
+      style={{ zIndex: 102 }}
+    >
       {/* Drawer Container */}
       <div
         className="rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 flex overflow-hidden shadow-lg"
@@ -136,8 +142,8 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ onClose, setIsAuthenticat
             </button>
           </div>
 
-                  {/* Other Profile Content */}
-                  {/* Stats Section */}
+          {/* Other Profile Content */}
+          {/* Stats Section */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg text-center">
               <h3 className="text-white text-xl font-semibold">

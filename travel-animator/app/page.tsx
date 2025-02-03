@@ -15,6 +15,7 @@ export default function Page() {
   const [waypoints, setWaypoints] = useState({
     startingPoint: "",
     endingPoint: "",
+    middlePoints: [],
   });
   const [route, setRoute] = useState<GeoJSON.Geometry | null>(null);
   const [activeTab, setActiveTab] = useState("routes"); // Manages active tab
@@ -88,7 +89,7 @@ export default function Page() {
                 selectedColor={selectedColor}
                 setSelectedColor={setSelectedColor}
                 errorPopup={errorPopup}
-                setErrorPopup={setErrorPopup} // Pass down the errorPopup handler
+                setErrorPopup={setErrorPopup} // Pass the errorPopup handler
               />
               <DynamicMapWithStyles
                 setWaypoints={setWaypoints}

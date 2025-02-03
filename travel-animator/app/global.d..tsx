@@ -11,7 +11,7 @@ declare namespace JSX {
         shadowIntensity?: number | string;
         environmentImage?: string;
         exposure?: number | string;
-        [key: string]: any; // Allow other custom attributes
+        [key: string]: any; 
       };
     }
   }
